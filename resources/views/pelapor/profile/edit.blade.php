@@ -31,10 +31,19 @@
                     @enderror
                 </div>
 
-                <div class="mb-6">
+                <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="phone_number">Nomor HP</label>
                     <input id="phone_number" type="text" name="phone_number" value="{{ old('phone_number', $user->phone_number == '-' ? '' : $user->phone_number) }}" placeholder="08..." class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-600 @error('phone_number') border-red-500 @enderror">
                     @error('phone_number')
+                        <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">Kata Sandi Baru (Opsional)</label>
+                    <input id="password" type="password" name="password" placeholder="Kosongkan jika tidak ingin mengubah" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-red-600 @error('password') border-red-500 @enderror">
+                    <p class="text-xs text-gray-500 mt-1">Isi jika Anda ingin bisa login menggunakan email & password sebagai alternatif Google OAuth.</p>
+                    @error('password')
                         <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
                     @enderror
                 </div>

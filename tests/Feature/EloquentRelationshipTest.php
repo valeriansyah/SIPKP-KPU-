@@ -14,7 +14,6 @@ use App\Models\Document;
 use App\Models\ReportStatus;
 use App\Models\Report;
 use App\Models\ReportVerification;
-use App\Models\OtpCode;
 use App\Models\AuditLog;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -105,18 +104,6 @@ class EloquentRelationshipTest extends TestCase
         $this->assertEquals('report_status_id', $reportVerification->reportStatus()->getForeignKeyName());
     }
 
-    public function test_user_otp_code_relationship()
-    {
-        $user = new User();
-        $otpCode = new OtpCode();
-
-        $this->assertInstanceOf(HasMany::class, $user->otpCodes());
-        $this->assertInstanceOf(OtpCode::class, $user->otpCodes()->getRelated());
-
-        $this->assertInstanceOf(BelongsTo::class, $otpCode->user());
-        $this->assertInstanceOf(User::class, $otpCode->user()->getRelated());
-        $this->assertEquals('user_id', $otpCode->user()->getForeignKeyName());
-    }
 
     public function test_user_audit_log_relationship()
     {

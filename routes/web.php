@@ -7,10 +7,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register/send-otp', [AuthController::class, 'sendRegistrationOTP']);
-Route::post('/register/verify-otp', [AuthController::class, 'verifyRegistrationOTP']);
-Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -20,9 +16,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/auth/google/redirect', [\App\Http\Controllers\GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback', [\App\Http\Controllers\GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 
-Route::post('/forgot-password/send-otp', [AuthController::class, 'sendResetOTP']);
-Route::post('/forgot-password/verify-otp', [AuthController::class, 'verifyResetOTP']);
-Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword']);
 
 // Application Web Routes
 Route::middleware(['auth', 'role:pelapor'])->prefix('pelapor')->name('pelapor.')->group(function () {

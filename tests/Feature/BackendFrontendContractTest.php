@@ -43,7 +43,6 @@ class BackendFrontendContractTest extends TestCase
     public function test_expected_auth_endpoints_exist()
     {
         $this->assertTrue(Route::has('login'), "Login route is missing");
-        $this->assertTrue(Route::has('register'), "Register route is missing");
         $this->assertTrue(Route::has('logout'), "Logout route is missing");
     }
 
