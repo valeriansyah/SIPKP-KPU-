@@ -1,0 +1,214 @@
+# Entity Discovery SIPKP
+**Dokumen** : 02-entity-discovery.md  
+**Versi Sebelumnya** : 1.0 Final  
+**Versi Revisi** : 1.1 Final  
+**Status** : Approved  
+
+---
+
+# Daftar Revisi
+
+Dokumen ini berisi bagian-bagian yang perlu diperbarui berdasarkan hasil evaluasi Business Rule dan hasil review Antigravity IDE.
+
+---
+
+# REVISI 1
+## Bagian : 4.2 District
+
+### Ganti bagian:
+
+```text
+Digunakan oleh:
+
+- User
+- Sub Operator
+
+Alasan dibuat:
+
+Menentukan wilayah kerja Sub Operator dan asal wilayah laporan.
+```
+
+### Menjadi:
+
+```text
+Digunakan oleh:
+
+- User (Opsional sebagai informasi domisili)
+- Sub Operator
+- Deceased
+
+Alasan dibuat:
+
+District digunakan sebagai referensi wilayah administratif dalam sistem.
+
+District menjadi dasar penentuan wilayah kerja Sub Operator serta dasar distribusi laporan berdasarkan domisili Almarhum sehingga setiap laporan secara otomatis diteruskan kepada Sub Operator sesuai wilayahnya.
+```
+
+---
+
+# REVISI 2
+## Bagian : 4.8 Report
+
+### Ganti bagian:
+
+```text
+Data yang disimpan meliputi:
+
+- Nomor Laporan
+- Pelapor
+- Status
+- Tanggal Laporan
+```
+
+### Menjadi:
+
+```text
+Data yang disimpan meliputi:
+
+- Nomor Laporan
+- Pelapor
+- Status Laporan Saat Ini
+- Tanggal Laporan
+```
+
+---
+
+### Tambahkan setelah bagian:
+
+```text
+Alasan dibuat:
+
+Merupakan inti proses bisnis SIPKP.
+```
+
+### Tambahkan:
+
+```text
+Entity Report hanya menyimpan informasi utama laporan beserta status terakhirnya.
+
+Seluruh riwayat perubahan status dan proses verifikasi disimpan pada entity Report Verification sebagai audit trail.
+```
+
+---
+
+# REVISI 3
+## Bagian : 4.9 Deceased
+
+### Ganti bagian:
+
+```text
+Data meliputi:
+
+- NIK
+- Nama
+- Jenis Kelamin
+- Tempat Lahir
+- Tanggal Lahir
+- Alamat
+- Tempat Meninggal
+- Tanggal Meninggal
+```
+
+### Menjadi:
+
+```text
+Data meliputi:
+
+- NIK
+- Nomor Kartu Keluarga (KK)
+- Nama Lengkap
+- Jenis Kelamin
+- Tempat Lahir
+- Tanggal Lahir
+- Alamat Lengkap
+- Kabupaten/Kota
+- Tanggal Meninggal
+```
+
+---
+
+### Tambahkan setelah:
+
+```text
+Dipisahkan dari Report agar struktur database lebih terorganisir dan sesuai prinsip normalisasi.
+```
+
+### Tambahkan:
+
+```text
+Data Kabupaten/Kota pada entity Deceased digunakan sebagai dasar penentuan wilayah verifikasi oleh Sub Operator.
+```
+
+---
+
+# REVISI 4
+## Bagian : 5 Hubungan Antar Entity
+
+### Ganti bagian:
+
+```text
+- District → User
+- Document Type → Document
+- Report Status → Report Verification
+- OTP Code → User
+- Audit Log → User
+```
+
+### Menjadi:
+
+```text
+- District → User
+- District → Deceased
+- Document Type → Document
+- Report Status → Report
+- Report Status → Report Verification
+- OTP Code → User
+- Audit Log → User
+```
+
+---
+
+# REVISI 5
+## Bagian Baru
+
+Tambahkan setelah Bab 9.
+
+```markdown
+# 10. Decision Log
+
+Dokumen Entity Discovery telah melalui proses evaluasi sehingga dihasilkan keputusan desain sebagai berikut.
+
+| No | Keputusan | Alasan |
+|----|-----------|--------|
+|1|User, Sub Operator, dan Operator menggunakan satu entity User|Menghindari duplikasi data dan menerapkan RBAC.|
+|2|Entity Deceased dipisahkan dari Report|Memenuhi prinsip normalisasi database.|
+|3|District menjadi dasar distribusi laporan|Sub Operator menerima laporan berdasarkan domisili Almarhum.|
+|4|Report menyimpan status laporan terakhir|Mempermudah proses monitoring Dashboard.|
+|5|Report Verification menyimpan histori perubahan status|Mendukung audit trail.|
+|6|Login menggunakan Email|Username hanya digunakan sebagai display name.|
+|7|Nomor laporan tetap sama meskipun laporan diperbaiki|Menjaga konsistensi identitas laporan.|
+|8|Tidak dibuat entity Reporter|Pelapor direpresentasikan oleh entity User.|
+|9|Tidak dibuat entity Sub Operator|Sub Operator dibedakan melalui Role dan District.|
+```
+
+---
+
+# Ringkasan Perubahan
+
+| Bagian | Status |
+|----------|--------|
+| District | Direvisi |
+| Report | Direvisi |
+| Deceased | Direvisi |
+| Hubungan Entity | Direvisi |
+| Decision Log | Ditambahkan |
+
+---
+
+# Status Akhir
+
+Setelah seluruh revisi diterapkan maka dokumen berubah menjadi:
+
+**Versi : 1.1 Final**
+
+**Status : Approved**

@@ -1,0 +1,171 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\User;
+use App\Models\Role;
+use App\Models\District;
+use App\Models\Report;
+use App\Models\ReportStatus;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class DashboardIntegrationValidationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed([\Database\Seeders\RoleSeeder::class, \Database\Seeders\ReportStatusSeeder::class, \Database\Seeders\DistrictSeeder::class]);
+    }
+
+    public function test_pelapor_can_see_own_dashboard_and_only_own_stats()
+    {
+        $pelaporRole = Role::where('role_name', 'Pelapor')->first();
+        $statusPending = ReportStatus::where('status_name', 'Pending')->first();
+        
+        $pelaporA = User::factory()->create(['role_id' => $pelaporRole->id]);
+        $pelaporB = User::factory()->create(['role_id' => $pelaporRole->id]);
+
+        // Pelapor A has 2 reports
+        Report::factory()->count(2)->create([
+            'user_id' => $pelaporA->id,
+            'report_status_id' => $statusPending->id,
+        ]);
+
+        // Pelapor B has 3 reports
+        Report::factory()->count(3)->create([
+            'user_id' => $pelaporB->id,
+            'report_status_id' => $statusPending->id,
+        ]);
+
+        // Act & Assert Pelapor A
+        $responseA = $this->actingAs($pelaporA)->get('/pelapor/dashboard');
+        $responseA->assertStatus(200);
+        $responseA->assertViewHas('metrics', function ($metrics) {
+            return $metrics['total'] === 2 && $metrics['pending'] === 2;
+        });
+        $responseA->assertViewHas('recentReports', function ($reports) use ($pelaporA) {
+            return $reports->count() === 2 && $reports->first()->user_id === $pelaporA->id;
+        });
+
+        // Act & Assert Pelapor B
+        $responseB = $this->actingAs($pelaporB)->get('/pelapor/dashboard');
+        $responseB->assertStatus(200);
+        $responseB->assertViewHas('metrics', function ($metrics) {
+            return $metrics['total'] === 3 && $metrics['pending'] === 3;
+        });
+    }
+
+    public function test_pelapor_empty_state()
+    {
+        $pelaporRole = Role::where('role_name', 'Pelapor')->first();
+        $pelapor = User::factory()->create(['role_id' => $pelaporRole->id]);
+
+        $response = $this->actingAs($pelapor)->get('/pelapor/dashboard');
+        $response->assertStatus(200);
+        $response->assertViewHas('metrics', function ($metrics) {
+            return $metrics['total'] === 0;
+        });
+        $response->assertViewHas('recentReports', function ($reports) {
+            return $reports->isEmpty();
+        });
+    }
+
+    public function test_sub_operator_can_see_only_own_district_stats()
+    {
+        $subOpRole = Role::where('role_name', 'Sub Operator')->first();
+        $pelaporRole = Role::where('role_name', 'Pelapor')->first();
+        
+        $districtPalembang = District::where('name', 'Palembang')->first();
+        $districtPrabumulih = District::where('name', 'Prabumulih')->first();
+
+        $subOpPalembang = User::factory()->create([
+            'role_id' => $subOpRole->id,
+            'district_id' => $districtPalembang->id
+        ]);
+        
+        $subOpPrabumulih = User::factory()->create([
+            'role_id' => $subOpRole->id,
+            'district_id' => $districtPrabumulih->id
+        ]);
+
+        $pelapor = User::factory()->create(['role_id' => $pelaporRole->id]);
+
+        // Create 2 reports in Palembang
+        $reportsPalembang = Report::factory()->count(2)->create(['user_id' => $pelapor->id, 'report_status_id' => 1]);
+        foreach ($reportsPalembang as $r) {
+            \App\Models\Deceased::factory()->create(['report_id' => $r->id, 'district_id' => $districtPalembang->id]);
+        }
+
+        // Create 3 reports in Prabumulih
+        $reportsPrabumulih = Report::factory()->count(3)->create(['user_id' => $pelapor->id, 'report_status_id' => 1]);
+        foreach ($reportsPrabumulih as $r) {
+            \App\Models\Deceased::factory()->create(['report_id' => $r->id, 'district_id' => $districtPrabumulih->id]);
+        }
+
+        // Act & Assert Sub Operator Palembang
+        // Test query param manipulation attempt
+        $responseA = $this->actingAs($subOpPalembang)->get('/sub-operator/dashboard?district_id=' . $districtPrabumulih->id);
+        $responseA->assertStatus(200);
+        $responseA->assertViewHas('metrics', function ($metrics) {
+            return $metrics['total'] === 2; // Should not be 3 or 5, strictly 2
+        });
+        $responseA->assertViewHas('queue', function ($queue) {
+            return $queue->total() === 2;
+        });
+
+        // Act & Assert Sub Operator Prabumulih
+        $responseB = $this->actingAs($subOpPrabumulih)->get('/sub-operator/dashboard');
+        $responseB->assertStatus(200);
+        $responseB->assertViewHas('metrics', function ($metrics) {
+            return $metrics['total'] === 3;
+        });
+    }
+
+    public function test_operator_can_see_global_stats()
+    {
+        $operatorRole = Role::where('role_name', 'Operator Provinsi')->first();
+        $pelaporRole = Role::where('role_name', 'Pelapor')->first();
+        
+        $operator = User::factory()->create(['role_id' => $operatorRole->id]);
+        $pelapor = User::factory()->create(['role_id' => $pelaporRole->id]);
+
+        $reports = Report::factory()->count(5)->create(['user_id' => $pelapor->id, 'report_status_id' => 1]);
+        foreach ($reports as $r) {
+            \App\Models\Deceased::factory()->create(['report_id' => $r->id, 'district_id' => 1]);
+        }
+
+        $response = $this->actingAs($operator)->get('/operator/dashboard');
+        $response->assertStatus(200);
+        
+        $response->assertViewHas('metrics', function ($metrics) {
+            return $metrics['total'] === 5;
+        });
+        
+        $response->assertViewHas('districtStatistics', function ($stats) {
+            return $stats !== null;
+        });
+        
+        $response->assertViewHas('activities');
+        $response->assertViewHas('recentReports');
+    }
+
+    public function test_unauthenticated_cannot_access_dashboard()
+    {
+        $this->get('/pelapor/dashboard')->assertRedirect('/login');
+        $this->get('/sub-operator/dashboard')->assertRedirect('/login');
+        $this->get('/operator/dashboard')->assertRedirect('/login');
+    }
+
+    public function test_cross_role_access_is_denied()
+    {
+        $pelaporRole = Role::where('role_name', 'Pelapor')->first();
+        $pelapor = User::factory()->create(['role_id' => $pelaporRole->id]);
+
+        // Pelapor trying to access Operator and Sub Operator
+        $this->actingAs($pelapor)->get('/operator/dashboard')->assertForbidden();
+        $this->actingAs($pelapor)->get('/sub-operator/dashboard')->assertForbidden();
+    }
+}

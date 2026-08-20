@@ -1,0 +1,661 @@
+# BUSINESS RULE
+# Sistem Informasi Pelaporan Kematian Pemilih (SIPKP)
+
+**Versi** : 1.0 Final  
+**Status** : Approved  
+**Instansi** : Komisi Pemilihan Umum Provinsi Sumatera Selatan  
+**Framework** : Laravel 12  
+**Database** : MySQL / MariaDB  
+
+---
+
+# 1. Pendahuluan
+
+## 1.1 Nama Sistem
+
+Sistem Informasi Pelaporan Kematian Pemilih (SIPKP)
+
+---
+
+## 1.2 Tujuan Sistem
+
+SIPKP merupakan sistem berbasis web yang dikembangkan untuk mempermudah masyarakat dalam melaporkan data pemilih yang telah meninggal dunia kepada KPU Provinsi Sumatera Selatan secara online.
+
+Sistem ini bertujuan untuk:
+
+- Mempermudah proses pelaporan kematian pemilih.
+- Mempercepat proses verifikasi data.
+- Mendukung Pemutakhiran Data Pemilih Berkelanjutan (PDPB).
+- Mengurangi proses administrasi secara manual.
+- Menyimpan seluruh data dan dokumen pelaporan secara terstruktur.
+- Menyediakan monitoring laporan secara real-time.
+
+---
+
+# 2. Ruang Lingkup Sistem
+
+## Sistem mencakup
+
+- Registrasi akun
+- Verifikasi Email menggunakan OTP
+- Login
+- Lupa Password
+- Manajemen Profil
+- Pelaporan Kematian Pemilih
+- Upload Dokumen Persyaratan
+- Verifikasi Laporan
+- Dashboard Monitoring
+- Master Data
+- Audit Log
+
+## Sistem tidak mencakup
+
+- Integrasi Dukcapil
+- Integrasi SIDALIH
+- SMS Gateway
+- WhatsApp Gateway
+- Pembayaran
+- Digital Signature
+
+---
+
+# 3. Aktor Sistem
+
+## 3.1 User (Pelapor)
+
+Merupakan masyarakat yang melaporkan data pemilih meninggal dunia.
+
+Hak Akses:
+
+- Registrasi
+- Login
+- Lupa Password
+- Mengelola Profil
+- Membuat Laporan
+- Upload Dokumen
+- Melihat Status Laporan
+- Melihat Riwayat Laporan
+
+---
+
+## 3.2 Sub Operator Kabupaten/Kota
+
+Merupakan petugas KPU Kabupaten/Kota yang melakukan proses verifikasi.
+
+Hak Akses:
+
+- Login
+- Melihat Laporan sesuai wilayah
+- Memverifikasi Laporan
+- Approve
+- Reject
+- Mengirim laporan untuk diperbaiki
+- Memberikan Catatan Verifikasi
+
+---
+
+## 3.3 Operator Provinsi
+
+Administrator utama sistem.
+
+Hak Akses:
+
+- Login
+- Monitoring seluruh laporan
+- Monitoring seluruh Kabupaten/Kota
+- Kelola Master Data
+- Kelola Akun Sub Operator
+- Dashboard
+- Audit Log
+- TIDAK memiliki hak verifikasi (Approve/Reject laporan)
+
+---
+
+# 4. Business Rules
+
+## BR-01 Registrasi
+
+- User wajib melakukan registrasi menggunakan email aktif.
+- Email harus unik.
+- Sistem mengirim OTP ke email.
+- OTP wajib diverifikasi.
+- Setelah OTP berhasil diverifikasi, pengguna wajib melengkapi:
+  - Nama Lengkap
+  - Username
+  - Password
+  - Nomor WhatsApp
+- Username bersifat unik.
+- Password disimpan menggunakan hashing Laravel.
+
+---
+
+## BR-02 Login
+
+- Login hanya menggunakan Email dan Password.
+- Username hanya digunakan sebagai identitas pengguna (display name) dan tidak digunakan sebagai media autentikasi.
+- Email harus telah diverifikasi.
+- Password harus sesuai.
+- Sistem mengarahkan pengguna ke Dashboard sesuai Role.
+
+---
+
+## BR-03 Lupa Password
+
+- Pengguna memasukkan email terdaftar.
+- Sistem mengirim OTP.
+- OTP diverifikasi.
+- Pengguna membuat Password Baru.
+- Password baru menggantikan password lama.
+
+---
+
+## BR-04 OTP
+
+- OTP terdiri dari 6 digit angka.
+- OTP berlaku selama 5 menit.
+- OTP hanya dapat digunakan satu kali.
+- OTP lama otomatis tidak berlaku ketika OTP baru dibuat.
+- Pengguna dapat mengirim ulang OTP.
+
+---
+
+## BR-05 Pelaporan
+
+Data Almarhum wajib memuat:
+
+- NIK
+- Nomor Kartu Keluarga (KK)
+- Nama Lengkap
+- Jenis Kelamin
+- Tempat Lahir
+- Tanggal Lahir
+- Alamat Lengkap
+- Kabupaten/Kota
+- Tanggal Meninggal
+
+---
+
+## BR-06 Dokumen
+
+Dokumen wajib:
+
+- Surat Keterangan Kematian
+- KTP Almarhum
+- Kartu Keluarga
+- KTP Pelapor
+
+Dokumen tambahan:
+
+- Surat Pengantar RT/RW
+- Surat Visum
+- Akta Kelahiran
+- Foto Almarhum
+
+Ketentuan:
+
+- Format:
+  - PDF
+  - JPG
+  - JPEG
+  - PNG
+
+- Maksimal ukuran:
+  - 5 MB
+
+---
+
+## BR-07 Verifikasi
+
+Sub Operator menerima laporan berdasarkan Kabupaten/Kota domisili Almarhum.Bukan berdasarkan data Pelapor.
+
+Sub Operator dapat:
+
+- Membuka Detail Laporan
+- Memeriksa Dokumen
+- Memberikan Catatan
+- Mengubah Status Laporan
+- Menyetujui Laporan
+- Mengirim laporan untuk diperbaiki
+- Menolak Laporan
+
+---
+
+## BR-08 Status Laporan
+
+Status terdiri dari:
+
+- Pending
+- Diproses
+- Perlu Perbaikan
+- Disetujui
+- Ditolak
+
+Status hanya dapat diubah oleh petugas KPU.
+
+---
+
+## BR-09 Monitoring
+
+Operator dapat melihat:
+
+- Seluruh laporan
+- Statistik laporan
+- Statistik Kabupaten/Kota
+- Statistik Verifikasi
+
+---
+
+## BR-10 Audit Log
+
+Audit Log mencatat:
+
+- Registrasi
+- Login
+- Logout
+- Reset Password
+- Update Profil
+- Membuat Laporan
+- Approve
+- Reject
+- Perlu Perbaikan
+- Kelola Master Data
+
+Audit Log hanya dapat diakses Operator.
+
+---
+
+## BR-11 Hak Akses
+
+- User hanya dapat melihat data miliknya.
+- Sub Operator hanya dapat melihat laporan wilayahnya.
+- Operator memiliki akses monitoring dan administratif untuk seluruh wilayah, namun TIDAK DAPAT melakukan verifikasi, approve, atau reject laporan. Hak verifikasi mutlak hanya milik Sub Operator.
+
+---
+
+## BR-12 Keamanan
+
+- Password di-hash.
+- OTP memiliki masa berlaku.
+- Menggunakan RBAC.
+- Middleware Authentication Laravel.
+- Audit Log aktif.
+
+---
+
+## BR-13 Manajemen Profil
+
+Pengguna dapat mengubah:
+
+- Nama Lengkap
+- Nomor WhatsApp
+- Foto Profil (Opsional)
+- Password
+
+Ketentuan:
+
+- Email tidak dapat diubah.
+- Username tidak dapat diubah.
+- Perubahan profil dicatat pada Audit Log.
+
+---
+
+## BR-14 Perbaikan Laporan
+
+Apabila laporan berstatus **Perlu Perbaikan**, maka:
+
+- User dapat memperbaiki laporan.
+- User dapat mengganti dokumen.
+- User dapat menambahkan dokumen.
+- Nomor laporan tetap sama.
+- Setelah dikirim ulang status kembali menjadi Pending.
+- Riwayat verifikasi tetap tersimpan.
+
+---
+
+## BR-15 Manajemen Akun Sub Operator
+
+Operator dapat:
+
+- Menambah akun
+- Mengubah akun
+- Mengaktifkan akun
+- Menonaktifkan akun
+
+Ketentuan:
+
+- Satu Kabupaten/Kota hanya memiliki satu akun Sub Operator aktif.
+
+---
+
+## BR-16 Master Data
+
+Operator dapat mengelola:
+
+- Kabupaten/Kota
+- Jenis Dokumen
+- Status Laporan
+
+---
+
+## BR-17 Nomor Laporan
+
+Nomor laporan:
+
+- Dibuat otomatis.
+- Bersifat unik.
+- Tidak dapat diubah.
+- Tetap digunakan meskipun laporan diperbaiki.
+
+Format:
+
+SIPKP-YYYYMMDD-XXXX
+
+Contoh:
+
+SIPKP-20260807-0001
+
+---
+
+## BR-18 Riwayat Verifikasi
+
+Sistem menyimpan:
+
+- Petugas Verifikasi
+- Tanggal Verifikasi
+- Status
+- Catatan
+
+Riwayat tidak dapat dihapus.
+
+---
+
+## BR-19 Dashboard
+
+Dashboard User:
+
+- Jumlah Laporan
+- Status Laporan
+- Riwayat Laporan
+
+Dashboard Sub Operator:
+
+- Pending
+- Diproses
+- Perlu Perbaikan
+- Disetujui
+- Ditolak
+
+Dashboard Operator:
+
+- Statistik Seluruh Kabupaten/Kota
+- Statistik Laporan
+- Statistik Verifikasi
+
+---
+
+## BR-20 Penghapusan Data
+
+Seluruh data utama menggunakan Soft Delete.
+
+Data tidak dihapus permanen.
+
+---
+
+## BR-21 Session Login
+
+- Pengguna wajib Login.
+- Logout menghapus Session.
+- Pengguna yang belum Login tidak dapat mengakses sistem.
+
+---
+
+## BR-22 Validasi Wilayah
+
+-Sub Operator hanya dapat memverifikasi laporan yang berasal dari Kabupaten/Kota domisili Almarhum sesuai wilayah tugasnya.
+-Operator Provinsi memiliki akses terhadap seluruh wilayah.
+---
+
+# 5. Aturan Data
+
+## Username
+
+- Unik
+- Minimal 5 karakter
+- Maksimal 30 karakter
+- Huruf, angka, underscore
+
+---
+
+## Password
+
+- Minimal 8 karakter
+- Maksimal 20 karakter
+- Mengandung huruf dan angka
+
+---
+
+## Email
+
+- Unik
+- Aktif
+
+---
+
+# 6. Status Laporan
+
+| Status | Keterangan |
+|----------|------------------------------------------|
+| Pending | Menunggu verifikasi |
+| Diproses | Sedang diperiksa oleh Sub Operator |
+| Perlu Perbaikan | Dikembalikan kepada pelapor untuk diperbaiki |
+| Disetujui | Laporan diterima |
+| Ditolak | Laporan ditolak secara permanen |
+
+---
+
+# 7. Aturan Database
+
+- Satu Role memiliki banyak User.
+- Satu Kabupaten/Kota memiliki banyak User.
+- Satu User memiliki banyak Laporan.
+- Satu Laporan memiliki satu Data Almarhum.
+- Satu Laporan memiliki banyak Dokumen.
+- Setiap Dokumen memiliki satu Jenis Dokumen.
+- Setiap Laporan memiliki banyak Riwayat Verifikasi.
+- Audit Log mencatat seluruh aktivitas.
+- Seluruh tabel transaksi memiliki:
+  - created_at
+  - updated_at
+  - deleted_at (Soft Delete)
+
+---
+
+# 8. Alur Proses Bisnis
+
+## Registrasi
+
+Registrasi
+
+↓
+
+Kirim OTP
+
+↓
+
+Verifikasi OTP
+
+↓
+
+Lengkapi Profil
+
+↓
+
+Login
+
+---
+
+## Login
+
+Login
+
+↓
+
+Dashboard
+
+---
+
+## Lupa Password
+
+Masukkan Email
+
+↓
+
+Kirim OTP
+
+↓
+
+Verifikasi OTP
+
+↓
+
+Password Baru
+
+↓
+
+Login
+
+---
+
+## Pelaporan
+
+Login
+
+↓
+
+Isi Data Pelapor
+
+↓
+
+Isi Data Almarhum
+
+↓
+
+Upload Dokumen
+
+↓
+
+Submit
+
+↓
+
+Pending
+
+---
+
+## Verifikasi
+
+Login
+
+↓
+
+Pilih Laporan
+
+↓
+
+Periksa Data
+
+↓
+
+Periksa Dokumen
+
+↓
+
+Diproses
+
+↓
+
+Disetujui / Perlu Perbaikan / Ditolak
+
+---
+
+## Perbaikan Laporan
+
+User Membuka Laporan
+
+↓
+
+Perbaiki Data
+
+↓
+
+Upload Dokumen Baru (Jika Diperlukan)
+
+↓
+
+Submit
+
+↓
+
+Pending
+
+---
+
+## Monitoring
+
+Login
+
+↓
+
+Dashboard
+
+↓
+
+Monitoring
+
+↓
+
+Statistik
+
+---
+
+# 9. Output Sistem
+
+Sistem menghasilkan:
+
+- Data Pengguna
+- Data Laporan
+- Data Almarhum
+- Dokumen Pelaporan
+- Dashboard Monitoring
+- Statistik
+- Audit Log
+
+---
+
+# 10. Glossary
+
+| Istilah | Definisi |
+|----------|----------|
+| Pelapor | Pengguna yang mengirim laporan kematian pemilih. |
+| Almarhum | Pemilih yang dilaporkan telah meninggal dunia. |
+| Sub Operator | Petugas KPU Kabupaten/Kota yang memverifikasi laporan. |
+| Operator | Administrator KPU Provinsi. |
+| OTP | One-Time Password untuk verifikasi email atau reset password. |
+| PDPB | Pemutakhiran Data Pemilih Berkelanjutan. |
+
+---
+
+# 11. Dokumen Turunan
+
+Business Rule ini menjadi acuan dalam penyusunan:
+
+- Entity Discovery
+- ERD
+- Data Dictionary
+- UML
+- Laravel Migration
+- Eloquent Model
+- Repository Layer
+- Service Layer
+- Authorization Policy
+- Dashboard
