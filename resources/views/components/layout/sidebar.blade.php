@@ -11,7 +11,7 @@
     <div class="pt-8 pb-6 px-4 flex flex-col items-center text-center relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
         <!-- Logo -->
-        <img src="{{ asset('images/logo KPU.png') }}" alt="Logo Komisi Pemilihan Umum" class="mx-auto h-24 w-24 object-contain mb-4 relative z-10 drop-shadow-md hover:scale-110 hover:rotate-3 transition-transform duration-300 cursor-pointer">
+        <img src="{{ asset('images/logo-kpu.png') }}" alt="Logo Komisi Pemilihan Umum" class="mx-auto h-24 w-24 object-contain mb-4 relative z-10 drop-shadow-md hover:scale-110 hover:rotate-3 transition-transform duration-300 cursor-pointer">
         
         <h1 class="text-[11px] font-bold text-accent tracking-[0.2em] uppercase mb-1.5 relative z-10">
             KPU PROVINSI SUMATERA SELATAN

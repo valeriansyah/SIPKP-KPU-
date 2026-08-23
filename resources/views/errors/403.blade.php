@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>403 Terlarang - SIPKP</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/kpu-logo.png') }}">
-    <link rel="shortcut icon" href="{{ asset('images/kpu-logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-kpu.png') }}">
+    <link rel="shortcut icon" href="{{ asset('images/logo-kpu.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
 <body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
     <div class="max-w-md w-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden text-center">
         <div class="bg-[#8B0000] p-6 flex justify-center">
-            <img src="{{ asset('images/kpu-logo.png') }}" alt="Logo KPU" class="h-20 w-20 object-contain drop-shadow-md">
+            <img src="{{ asset('images/logo-kpu.png') }}" alt="Logo KPU" class="h-20 w-20 object-contain drop-shadow-md">
         </div>
         <div class="p-8">
             <h1 class="text-6xl font-black text-[#8B0000] mb-2 tracking-tighter">403</h1>

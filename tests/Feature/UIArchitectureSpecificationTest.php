@@ -31,7 +31,7 @@ class UIArchitectureSpecificationTest extends TestCase
 
     public function test_ui_architecture_specification_document_exists_and_complete()
     {
-        $filePath = base_path('docs/Phase-5B-UI-UX-Design-Specification.md');
+        $filePath = base_path('docs/architecture/Phase-5B-UI-UX-Design-Specification.md');
         $this->assertFileExists($filePath);
 
         $content = file_get_contents($filePath);

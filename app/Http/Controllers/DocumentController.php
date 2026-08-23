@@ -23,26 +23,6 @@ class DocumentController extends Controller
         $this->documentService = $documentService;
     }
 
-    public function store(StoreDocumentRequest $request, Report $report)
-    {
-        // Object-level authorization via ReportPolicy (manageDocument)
-        $this->authorize('manageDocument', $report);
-
-        $documentType = DocumentType::findOrFail($request->document_type_id);
-
-        try {
-            $document = $this->documentService->uploadDocument(
-                $request->user(),
-                $report,
-                $documentType,
-                $request->file('file')
-            );
-
-            return response()->json($document, 201);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
-        }
-    }
 
     public function update(ReplaceDocumentRequest $request, Document $document)
     {

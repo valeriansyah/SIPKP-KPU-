@@ -9,8 +9,8 @@
     <title>{{ $title ?? config('app.name', 'SIPKP') }}</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('images/kpu-logo.png') }}">
-    <link rel="shortcut icon" href="{{ asset('images/kpu-logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-kpu.png') }}">
+    <link rel="shortcut icon" href="{{ asset('images/logo-kpu.png') }}">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

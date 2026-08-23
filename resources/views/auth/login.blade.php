@@ -7,8 +7,8 @@
     <meta name="description" content="Sistem Informasi Pelaporan Kematian Pemilih KPU Provinsi Sumatera Selatan">
     <title>{{ $title ?? config('app.name', 'SIPKP') }} - Login</title>
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('images/kpu-logo.png') }}">
-    <link rel="shortcut icon" href="{{ asset('images/kpu-logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-kpu.png') }}">
+    <link rel="shortcut icon" href="{{ asset('images/logo-kpu.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -26,7 +26,7 @@
             
             <div class="relative z-10 flex flex-col items-center">
                 <!-- Logo -->
-                <img src="{{ asset('images/kpu-logo.png') }}" alt="Logo Komisi Pemilihan Umum" class="h-28 w-28 object-contain mb-4 relative z-10 drop-shadow-md">
+                <img src="{{ asset('images/logo-kpu.png') }}" alt="Logo Komisi Pemilihan Umum" class="h-28 w-28 object-contain mb-4 relative z-10 drop-shadow-md">
                 <h1 class="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-90">KPU Provinsi Sumatera Selatan</h1>
                 <h2 class="text-white text-2xl font-extrabold tracking-tight">SIPKP Login</h2>
                 <p class="text-primary-100 text-sm mt-2 max-w-xs mx-auto">Sistem Informasi Pelaporan Kematian Pemilih</p>
