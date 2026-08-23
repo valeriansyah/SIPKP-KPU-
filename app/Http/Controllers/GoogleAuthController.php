@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -16,31 +17,31 @@ class GoogleAuthController extends Controller
     {
         $driver = Socialite::driver('google');
         if (app()->environment('local')) {
-            $driver->setHttpClient(new \GuzzleHttp\Client(['verify' => false]));
+            $driver->setHttpClient(new Client(['verify' => false]));
         }
+
         return $driver->redirect();
     }
-
 
     public function callback(Request $request)
     {
         try {
             $driver = Socialite::driver('google');
             if (app()->environment('local')) {
-                $driver->setHttpClient(new \GuzzleHttp\Client(['verify' => false]));
+                $driver->setHttpClient(new Client(['verify' => false]));
             }
             $googleUser = $driver->user();
 
             $user = User::where('email', $googleUser->getEmail())->first();
 
-            if (!$user) {
+            if (! $user) {
                 // Determine Pelapor Role ID
                 $pelaporRole = Role::where('role_name', 'Pelapor')->first();
-                if (!$pelaporRole) {
+                if (! $pelaporRole) {
                     return redirect()->route('login')->withErrors(['email' => 'Role Pelapor tidak ditemukan di sistem.']);
                 }
 
-                $username = 'pelapor_' . strtolower(Str::random(6));
+                $username = 'pelapor_'.strtolower(Str::random(6));
 
                 // Create new user using the Google details
                 $user = User::create([

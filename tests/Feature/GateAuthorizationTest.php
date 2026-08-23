@@ -2,30 +2,32 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
+use App\Models\Deceased;
 use App\Models\District;
 use App\Models\Report;
-use App\Models\Deceased;
 use App\Models\ReportStatus;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class GateAuthorizationTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $operatorRole;
+
     protected $subOperatorRole;
+
     protected $pelaporRole;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->operatorRole = Role::firstOrCreate(['role_name' => 'Operator']);
+
+        $this->operatorRole = Role::firstOrCreate(['role_name' => 'Operator Provinsi']);
         $this->subOperatorRole = Role::firstOrCreate(['role_name' => 'Sub Operator']);
         $this->pelaporRole = Role::firstOrCreate(['role_name' => 'Pelapor']);
     }
@@ -33,13 +35,13 @@ class GateAuthorizationTest extends TestCase
     protected function createUser($role, $isActive = true)
     {
         return User::create([
-            'full_name' => 'Test ' . $role->role_name,
-            'username' => 'testuser_' . uniqid(),
+            'full_name' => 'Test '.$role->role_name,
+            'username' => 'testuser_'.uniqid(),
             'phone_number' => '08123456789',
-            'email' => 'test_' . uniqid() . '@example.com',
+            'email' => 'test_'.uniqid().'@example.com',
             'password' => Hash::make('Password123'),
             'role_id' => $role->id,
-            'is_active' => $isActive
+            'is_active' => $isActive,
         ]);
     }
 
@@ -228,7 +230,7 @@ class GateAuthorizationTest extends TestCase
         $unknownRole = Role::firstOrCreate(['role_name' => 'Unknown']);
         $user = $this->createUser($unknownRole);
         $this->actingAs($user);
-        
+
         $this->assertFalse(Gate::allows('manage-master-data'));
         $this->assertFalse(Gate::allows('verify-report'));
         $this->assertFalse(Gate::allows('create-report'));
@@ -248,7 +250,7 @@ class GateAuthorizationTest extends TestCase
             'password' => Hash::make('Password123'),
             'role_id' => $this->subOperatorRole->id,
             'district_id' => $districtPalembang->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $pelapor = User::create([
@@ -258,7 +260,7 @@ class GateAuthorizationTest extends TestCase
             'email' => 'pelapor@example.com',
             'password' => Hash::make('Password123'),
             'role_id' => $this->pelaporRole->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $status = ReportStatus::firstOrCreate(['status_name' => 'Pending']);
@@ -266,7 +268,7 @@ class GateAuthorizationTest extends TestCase
         $reportLahat = Report::create([
             'user_id' => $pelapor->id,
             'report_status_id' => $status->id,
-            'report_number' => 'SIPKP-' . date('Ymd') . '-001',
+            'report_number' => 'SIPKP-'.date('Ymd').'-001',
         ]);
 
         Deceased::create([
@@ -282,7 +284,7 @@ class GateAuthorizationTest extends TestCase
             'death_place' => 'Lahat',
             'death_date' => '2023-01-01',
         ]);
-        
+
         $reportLahat->load('deceased');
 
         $this->actingAs($subOperator);

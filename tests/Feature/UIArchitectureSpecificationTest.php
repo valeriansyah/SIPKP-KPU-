@@ -2,26 +2,28 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
+use App\Models\District;
 use App\Models\Report;
 use App\Models\ReportStatus;
-use App\Models\District;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class UIArchitectureSpecificationTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $operatorRole;
+
     protected $subOperatorRole;
+
     protected $pelaporRole;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->operatorRole = Role::firstOrCreate(['role_name' => 'Operator']);
         $this->subOperatorRole = Role::firstOrCreate(['role_name' => 'Sub Operator']);
         $this->pelaporRole = Role::firstOrCreate(['role_name' => 'Pelapor']);
@@ -71,13 +73,13 @@ class UIArchitectureSpecificationTest extends TestCase
         $report = Report::create([
             'user_id' => $pelapor->id,
             'report_status_id' => $status->id,
-            'report_number' => 'TEST-001'
+            'report_number' => 'TEST-001',
         ]);
 
         $this->actingAs($operator);
 
         $response = $this->postJson("/reports/{$report->id}/verify", [
-            'decision' => 'disetujui'
+            'decision' => 'disetujui',
         ]);
 
         // Access should be strictly forbidden at backend layer
@@ -115,7 +117,7 @@ class UIArchitectureSpecificationTest extends TestCase
         $report = Report::create([
             'user_id' => $pelapor->id,
             'report_status_id' => $status->id,
-            'report_number' => 'TEST-002'
+            'report_number' => 'TEST-002',
         ]);
 
         // Attach deceased to district B
@@ -128,14 +130,14 @@ class UIArchitectureSpecificationTest extends TestCase
             'birth_place' => 'Jakarta',
             'address' => 'Jl. Merdeka',
             'birth_date' => '2000-01-01',
-            'death_date' => '2020-01-01'
+            'death_date' => '2020-01-01',
         ]);
 
         $this->actingAs($subOperator);
 
         // Sub Operator (District A) attempting to verify Report from District B
         $response = $this->postJson("/reports/{$report->id}/verify", [
-            'decision' => 'disetujui'
+            'decision' => 'disetujui',
         ]);
 
         $response->assertStatus(403);
@@ -168,7 +170,7 @@ class UIArchitectureSpecificationTest extends TestCase
         $report = Report::create([
             'user_id' => $pelapor2->id, // Owned by Pelapor 2
             'report_status_id' => $status->id,
-            'report_number' => 'TEST-003'
+            'report_number' => 'TEST-003',
         ]);
 
         $this->actingAs($pelapor1);

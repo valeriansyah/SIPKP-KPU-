@@ -2,35 +2,40 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
+use App\Models\Deceased;
 use App\Models\District;
 use App\Models\Report;
-use App\Models\Deceased;
 use App\Models\ReportStatus;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Role;
+use App\Models\User;
 use App\Policies\ReportPolicy;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class ReportPolicyTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $policy;
+
     protected $operatorRole;
+
     protected $subOperatorRole;
+
     protected $pelaporRole;
+
     protected $perluPerbaikanStatus;
+
     protected $pendingStatus;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->policy = new ReportPolicy();
 
-        $this->operatorRole = Role::firstOrCreate(['role_name' => 'Operator']);
+        $this->policy = new ReportPolicy;
+
+        $this->operatorRole = Role::firstOrCreate(['role_name' => 'Operator Provinsi']);
         $this->subOperatorRole = Role::firstOrCreate(['role_name' => 'Sub Operator']);
         $this->pelaporRole = Role::firstOrCreate(['role_name' => 'Pelapor']);
 
@@ -41,14 +46,14 @@ class ReportPolicyTest extends TestCase
     protected function createUser($role, $districtId = null)
     {
         return User::create([
-            'full_name' => 'Test ' . $role->role_name,
-            'username' => 'testuser_' . uniqid(),
+            'full_name' => 'Test '.$role->role_name,
+            'username' => 'testuser_'.uniqid(),
             'phone_number' => '08123456789',
-            'email' => 'test_' . uniqid() . '@example.com',
+            'email' => 'test_'.uniqid().'@example.com',
             'password' => Hash::make('Password123'),
             'role_id' => $role->id,
             'district_id' => $districtId,
-            'is_active' => true
+            'is_active' => true,
         ]);
     }
 
@@ -57,7 +62,7 @@ class ReportPolicyTest extends TestCase
         $report = Report::create([
             'user_id' => $user->id,
             'report_status_id' => $status->id,
-            'report_number' => 'SIPKP-' . date('Ymd') . '-' . uniqid(),
+            'report_number' => 'SIPKP-'.date('Ymd').'-'.uniqid(),
         ]);
 
         Deceased::create([
@@ -65,7 +70,7 @@ class ReportPolicyTest extends TestCase
             'district_id' => $district->id,
             'nik' => '1234567890123456',
             'family_card_number' => '1234567890123456',
-            'name' => 'Almarhum ' . uniqid(),
+            'name' => 'Almarhum '.uniqid(),
             'gender' => 'Laki-laki',
             'birth_place' => 'Palembang',
             'birth_date' => '1990-01-01',
@@ -102,10 +107,10 @@ class ReportPolicyTest extends TestCase
     {
         $districtPalembang = District::firstOrCreate(['name' => 'Palembang', 'code' => '1671']);
         $districtLahat = District::firstOrCreate(['name' => 'Lahat', 'code' => '1604']);
-        
+
         $subOperator = $this->createUser($this->subOperatorRole, $districtPalembang->id);
         $pelapor = $this->createUser($this->pelaporRole);
-        
+
         $reportLahat = $this->createReport($pelapor, $districtLahat, $this->pendingStatus);
 
         $this->assertFalse($this->policy->view($subOperator, $reportLahat));
@@ -125,7 +130,7 @@ class ReportPolicyTest extends TestCase
         $district = District::firstOrCreate(['name' => 'Palembang', 'code' => '1671']);
         $pelapor1 = $this->createUser($this->pelaporRole);
         $pelapor2 = $this->createUser($this->pelaporRole);
-        
+
         $reportPelapor2 = $this->createReport($pelapor2, $district, $this->pendingStatus);
 
         // IDOR Prevention check
@@ -196,7 +201,7 @@ class ReportPolicyTest extends TestCase
     {
         $districtPalembang = District::firstOrCreate(['name' => 'Palembang', 'code' => '1671']);
         $districtLahat = District::firstOrCreate(['name' => 'Lahat', 'code' => '1604']);
-        
+
         $subOperator = $this->createUser($this->subOperatorRole, $districtPalembang->id); // Sub operator from palembang
         $pelapor = $this->createUser($this->pelaporRole);
         $reportLahat = $this->createReport($pelapor, $districtLahat, $this->pendingStatus); // Report domisili almarhum lahat
@@ -230,13 +235,13 @@ class ReportPolicyTest extends TestCase
     {
         $district = District::firstOrCreate(['name' => 'Palembang', 'code' => '1671']);
         $pelapor = $this->createUser($this->pelaporRole);
-        
+
         // Simulasikan request memiliki role_id manipulator di session atau form
         // Policy HANYA mengambil dari database $user->role->role_name.
         // Jika Pelapor mencoba verify, akan selalu false walau request bilang dia operator.
         // Kita hanya ngetest behavior backend yang aman dengan policy ini.
         $report = $this->createReport($pelapor, $district, $this->pendingStatus);
-        
+
         $this->assertFalse($this->policy->verify($pelapor, $report));
     }
 }

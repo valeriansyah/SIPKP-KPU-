@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class ReportStatusSeeder extends Seeder
 {
-
     public function run(): void
     {
         DB::table('report_statuses')->upsert(

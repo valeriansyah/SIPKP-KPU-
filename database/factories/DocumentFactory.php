@@ -16,8 +16,8 @@ class DocumentFactory extends Factory
         return [
             'report_id' => Report::factory(),
             'document_type_id' => DocumentType::inRandomOrder()->first()->id ?? 1,
-            'file_path' => 'dummy/sipkp/document-' . fake()->uuid() . '.pdf',
-            'file_name' => fake()->word() . '.pdf',
+            'file_path' => 'dummy/sipkp/document-'.fake()->uuid().'.pdf',
+            'file_name' => fake()->word().'.pdf',
             'mime_type' => 'application/pdf',
             'file_size' => fake()->numberBetween(100000, 5000000),
             'created_at' => now(),

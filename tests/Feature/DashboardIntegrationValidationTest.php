@@ -2,11 +2,15 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Role;
+use App\Models\Deceased;
 use App\Models\District;
 use App\Models\Report;
 use App\Models\ReportStatus;
+use App\Models\Role;
+use App\Models\User;
+use Database\Seeders\DistrictSeeder;
+use Database\Seeders\ReportStatusSeeder;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,14 +21,14 @@ class DashboardIntegrationValidationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed([\Database\Seeders\RoleSeeder::class, \Database\Seeders\ReportStatusSeeder::class, \Database\Seeders\DistrictSeeder::class]);
+        $this->seed([RoleSeeder::class, ReportStatusSeeder::class, DistrictSeeder::class]);
     }
 
     public function test_pelapor_can_see_own_dashboard_and_only_own_stats()
     {
         $pelaporRole = Role::where('role_name', 'Pelapor')->first();
         $statusPending = ReportStatus::where('status_name', 'Pending')->first();
-        
+
         $pelaporA = User::factory()->create(['role_id' => $pelaporRole->id]);
         $pelaporB = User::factory()->create(['role_id' => $pelaporRole->id]);
 
@@ -77,18 +81,18 @@ class DashboardIntegrationValidationTest extends TestCase
     {
         $subOpRole = Role::where('role_name', 'Sub Operator')->first();
         $pelaporRole = Role::where('role_name', 'Pelapor')->first();
-        
+
         $districtPalembang = District::where('name', 'Palembang')->first();
         $districtPrabumulih = District::where('name', 'Prabumulih')->first();
 
         $subOpPalembang = User::factory()->create([
             'role_id' => $subOpRole->id,
-            'district_id' => $districtPalembang->id
+            'district_id' => $districtPalembang->id,
         ]);
-        
+
         $subOpPrabumulih = User::factory()->create([
             'role_id' => $subOpRole->id,
-            'district_id' => $districtPrabumulih->id
+            'district_id' => $districtPrabumulih->id,
         ]);
 
         $pelapor = User::factory()->create(['role_id' => $pelaporRole->id]);
@@ -96,18 +100,18 @@ class DashboardIntegrationValidationTest extends TestCase
         // Create 2 reports in Palembang
         $reportsPalembang = Report::factory()->count(2)->create(['user_id' => $pelapor->id, 'report_status_id' => 1]);
         foreach ($reportsPalembang as $r) {
-            \App\Models\Deceased::factory()->create(['report_id' => $r->id, 'district_id' => $districtPalembang->id]);
+            Deceased::factory()->create(['report_id' => $r->id, 'district_id' => $districtPalembang->id]);
         }
 
         // Create 3 reports in Prabumulih
         $reportsPrabumulih = Report::factory()->count(3)->create(['user_id' => $pelapor->id, 'report_status_id' => 1]);
         foreach ($reportsPrabumulih as $r) {
-            \App\Models\Deceased::factory()->create(['report_id' => $r->id, 'district_id' => $districtPrabumulih->id]);
+            Deceased::factory()->create(['report_id' => $r->id, 'district_id' => $districtPrabumulih->id]);
         }
 
         // Act & Assert Sub Operator Palembang
         // Test query param manipulation attempt
-        $responseA = $this->actingAs($subOpPalembang)->get('/sub-operator/dashboard?district_id=' . $districtPrabumulih->id);
+        $responseA = $this->actingAs($subOpPalembang)->get('/sub-operator/dashboard?district_id='.$districtPrabumulih->id);
         $responseA->assertStatus(200);
         $responseA->assertViewHas('metrics', function ($metrics) {
             return $metrics['total'] === 2; // Should not be 3 or 5, strictly 2
@@ -128,26 +132,26 @@ class DashboardIntegrationValidationTest extends TestCase
     {
         $operatorRole = Role::where('role_name', 'Operator Provinsi')->first();
         $pelaporRole = Role::where('role_name', 'Pelapor')->first();
-        
+
         $operator = User::factory()->create(['role_id' => $operatorRole->id]);
         $pelapor = User::factory()->create(['role_id' => $pelaporRole->id]);
 
         $reports = Report::factory()->count(5)->create(['user_id' => $pelapor->id, 'report_status_id' => 1]);
         foreach ($reports as $r) {
-            \App\Models\Deceased::factory()->create(['report_id' => $r->id, 'district_id' => 1]);
+            Deceased::factory()->create(['report_id' => $r->id, 'district_id' => 1]);
         }
 
         $response = $this->actingAs($operator)->get('/operator/dashboard');
         $response->assertStatus(200);
-        
+
         $response->assertViewHas('metrics', function ($metrics) {
             return $metrics['total'] === 5;
         });
-        
+
         $response->assertViewHas('districtStatistics', function ($stats) {
             return $stats !== null;
         });
-        
+
         $response->assertViewHas('activities');
         $response->assertViewHas('recentReports');
     }

@@ -1,20 +1,27 @@
 <?php
+
+use App\Models\Report;
+use App\Models\ReportStatus;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+
 require 'vendor/autoload.php';
 $app = require_once 'bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$app->make(Kernel::class)->bootstrap();
 
 echo "--- REPORT STATUSES ---\n";
-foreach (\App\Models\ReportStatus::all() as $status) {
-    echo "ID: {$status->id} | Name: {$status->status_name} | Slug: " . \Illuminate\Support\Str::slug($status->status_name, '_') . "\n";
+foreach (ReportStatus::all() as $status) {
+    echo "ID: {$status->id} | Name: {$status->status_name} | Slug: ".Str::slug($status->status_name, '_')."\n";
 }
 
 echo "\n--- RECENT REPORTS ---\n";
-$report = \App\Models\Report::with('reportStatus')->orderBy('id', 'desc')->first();
+$report = Report::with('reportStatus')->orderBy('id', 'desc')->first();
 echo "Latest Report ID: {$report->id} | Number: {$report->report_number} | Status: {$report->reportStatus->status_name}\n";
 
 // Let's test the validation logic manually
 echo "\n--- VALIDATION TEST ---\n";
-$validator = \Illuminate\Support\Facades\Validator::make(
+$validator = Validator::make(
     ['decision' => 'approve'],
     ['decision' => 'required|string|in:diproses,perlu_perbaikan,disetujui,ditolak']
 );

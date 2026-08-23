@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class DocumentTypeSeeder extends Seeder
 {
-
     public function run(): void
     {
         DB::table('document_types')->upsert(

@@ -2,39 +2,46 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
-use App\Models\District;
-use App\Models\ReportStatus;
-use App\Models\Report;
 use App\Models\Deceased;
-use Illuminate\Support\Facades\Hash;
+use App\Models\District;
+use App\Models\Report;
+use App\Models\ReportStatus;
+use App\Models\Role;
+use App\Models\User;
 use App\Services\VerificationService;
 use Exception;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class VerificationServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $pelaporRole;
+
     protected $operatorRole;
+
     protected $subOperatorRole;
-    
+
     protected $pendingStatus;
+
     protected $diprosesStatus;
+
     protected $perluPerbaikanStatus;
+
     protected $disetujuiStatus;
+
     protected $ditolakStatus;
 
     protected $districtPalembang;
+
     protected $districtLahat;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->pelaporRole = Role::firstOrCreate(['role_name' => 'Pelapor']);
         $this->operatorRole = Role::firstOrCreate(['role_name' => 'Operator']);
         $this->subOperatorRole = Role::firstOrCreate(['role_name' => 'Sub Operator']);
@@ -52,14 +59,14 @@ class VerificationServiceTest extends TestCase
     protected function createUser($role, $district = null)
     {
         return User::create([
-            'full_name' => 'Test ' . $role->role_name,
-            'username' => 'testuser_' . uniqid(),
+            'full_name' => 'Test '.$role->role_name,
+            'username' => 'testuser_'.uniqid(),
             'phone_number' => '08123456789',
-            'email' => 'test_' . uniqid() . '@example.com',
+            'email' => 'test_'.uniqid().'@example.com',
             'password' => Hash::make('Password123'),
             'role_id' => $role->id,
             'district_id' => $district ? $district->id : null,
-            'is_active' => true
+            'is_active' => true,
         ]);
     }
 
@@ -68,7 +75,7 @@ class VerificationServiceTest extends TestCase
         $report = Report::create([
             'user_id' => $user->id,
             'report_status_id' => $status->id,
-            'report_number' => 'SIPKP-20260807-' . rand(1000, 9999),
+            'report_number' => 'SIPKP-20260807-'.rand(1000, 9999),
         ]);
 
         Deceased::create([
@@ -192,7 +199,7 @@ class VerificationServiceTest extends TestCase
         $subOperator = $this->createUser($this->subOperatorRole, $this->districtPalembang);
         $this->actingAs($subOperator);
 
-        $response = $this->postJson("/reports/9999/verify", [
+        $response = $this->postJson('/reports/9999/verify', [
             'decision' => 'disetujui',
         ]);
 
@@ -229,7 +236,7 @@ class VerificationServiceTest extends TestCase
         $service = app(VerificationService::class);
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage("Sub Operator tidak dapat mengembalikan status menjadi Pending.");
+        $this->expectExceptionMessage('Sub Operator tidak dapat mengembalikan status menjadi Pending.');
 
         // Decision 'pending' is not accepted by VerifyReportRequest, but we test the service layer directly
         $service->verifyReport($subOperator, $report, 'pending', 'Batal diproses');
@@ -240,9 +247,9 @@ class VerificationServiceTest extends TestCase
     {
         $subOperator = $this->createUser($this->subOperatorRole, $this->districtPalembang);
         $pelapor = $this->createUser($this->pelaporRole);
-        
+
         $reportDitolak = $this->createReport($pelapor, $this->districtPalembang, $this->ditolakStatus);
-        
+
         $this->actingAs($subOperator);
 
         $response1 = $this->postJson("/reports/{$reportDitolak->id}/verify", [

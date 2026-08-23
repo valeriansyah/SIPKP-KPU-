@@ -15,7 +15,7 @@ class ReportPolicy
     {
         $roleName = Str::slug($user->role->role_name, '_');
 
-        if ($roleName === 'operator') {
+        if ($roleName === 'operator_provinsi') {
             return true; // Operator can see all reports
         }
 
@@ -41,8 +41,9 @@ class ReportPolicy
             if ($user->id !== $report->user_id) {
                 return false;
             }
-            
+
             $statusStr = Str::slug($report->reportStatus->status_name, '_');
+
             return $statusStr === 'perlu_perbaikan';
         }
 
@@ -74,8 +75,9 @@ class ReportPolicy
             if ($user->id !== $report->user_id) {
                 return false;
             }
-            
+
             $statusStr = Str::slug($report->reportStatus->status_name, '_');
+
             return in_array($statusStr, ['pending', 'perlu_perbaikan']);
         }
 

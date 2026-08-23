@@ -2,17 +2,17 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
 use App\Models\District;
-use App\Models\Deceased;
+use App\Models\DocumentType;
 use App\Models\Report;
 use App\Models\ReportStatus;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class Phase7IE2EWorkflowTest extends TestCase
 {
@@ -22,6 +22,7 @@ class Phase7IE2EWorkflowTest extends TestCase
     {
         parent::setUp();
         Storage::fake('public');
+        Storage::fake('local');
     }
 
     public function test_pelapor_can_create_report_and_sub_operator_can_verify_it()
@@ -29,7 +30,7 @@ class Phase7IE2EWorkflowTest extends TestCase
         // 1. Setup Roles
         $pelaporRole = Role::firstOrCreate(['role_name' => 'Pelapor']);
         $subOperatorRole = Role::firstOrCreate(['role_name' => 'Sub Operator']);
-        
+
         // 2. Setup Districts and Statuses
         $district = District::firstOrCreate(
             ['name' => 'Palembang'],
@@ -50,15 +51,15 @@ class Phase7IE2EWorkflowTest extends TestCase
         ]);
 
         // Setup Document Types in DB
-        $doc1 = \App\Models\DocumentType::firstOrCreate(['id' => 1, 'name' => 'Surat Keterangan Kematian', 'is_required' => true]);
-        $doc2 = \App\Models\DocumentType::firstOrCreate(['id' => 2, 'name' => 'KTP Almarhum', 'is_required' => true]);
-        $doc3 = \App\Models\DocumentType::firstOrCreate(['id' => 3, 'name' => 'Kartu Keluarga', 'is_required' => true]);
-        $doc6 = \App\Models\DocumentType::firstOrCreate(['id' => 6, 'name' => 'KTP Pelapor', 'is_required' => true]);
+        $doc1 = DocumentType::firstOrCreate(['id' => 1, 'name' => 'Surat Keterangan Kematian', 'is_required' => true]);
+        $doc2 = DocumentType::firstOrCreate(['id' => 2, 'name' => 'KTP Almarhum', 'is_required' => true]);
+        $doc3 = DocumentType::firstOrCreate(['id' => 3, 'name' => 'Kartu Keluarga', 'is_required' => true]);
+        $doc6 = DocumentType::firstOrCreate(['id' => 6, 'name' => 'KTP Pelapor', 'is_required' => true]);
 
         // 4. ACTOR 1 (Pelapor) creates a report
         $reportData = [
-            'nik' => '1671' . $this->faker->numerify('############'),
-            'family_card_number' => '1671' . $this->faker->numerify('############'),
+            'nik' => '1671'.$this->faker->numerify('############'),
+            'family_card_number' => '1671'.$this->faker->numerify('############'),
             'name' => 'Test Almarhum E2E',
             'gender' => 'Laki-laki',
             'district_id' => $district->id,
@@ -72,7 +73,7 @@ class Phase7IE2EWorkflowTest extends TestCase
                 2 => UploadedFile::fake()->create('ktp_almarhum.jpg', 100),
                 3 => UploadedFile::fake()->create('kk.jpg', 100),
                 6 => UploadedFile::fake()->create('ktp_pelapor.jpg', 100),
-            ]
+            ],
         ];
 
         $response = $this->actingAs($pelapor)
@@ -105,7 +106,7 @@ class Phase7IE2EWorkflowTest extends TestCase
         // 6. ACTOR 2 (Sub Operator) verifies the report (Disetujui)
         $verifyData = [
             'decision' => 'disetujui',
-            'notes' => 'Dokumen lengkap, disetujui via E2E test.'
+            'notes' => 'Dokumen lengkap, disetujui via E2E test.',
         ];
 
         $verifyResponse = $this->actingAs($subOperator)

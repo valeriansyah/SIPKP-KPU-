@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\Role;
 use App\Models\AuditLog;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 
 class AuthService
 {
@@ -26,7 +26,7 @@ class AuthService
                 'district_id' => null,
                 'is_active' => true,
             ]);
-            
+
             // Set email_verified_at explicitly
             $user->email_verified_at = now();
             $user->save();
@@ -50,10 +50,10 @@ class AuthService
             'password' => $password,
             'is_active' => 1,
         ];
-        
+
         if (Auth::attempt($credentials)) {
             request()->session()->regenerate();
-            
+
             AuditLog::create([
                 'user_id' => Auth::id(),
                 'activity' => 'Login',
@@ -61,7 +61,7 @@ class AuthService
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);
-            
+
             return true;
         }
 
@@ -71,7 +71,7 @@ class AuthService
     public function logout(): void
     {
         $userId = Auth::id();
-        
+
         Auth::logout();
         request()->session()->invalidate();
         request()->session()->regenerateToken();
@@ -91,7 +91,7 @@ class AuthService
     {
         DB::transaction(function () use ($user, $newPassword) {
             $user->update([
-                'password' => Hash::make($newPassword)
+                'password' => Hash::make($newPassword),
             ]);
 
             AuditLog::create([

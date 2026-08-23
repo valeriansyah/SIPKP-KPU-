@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Deceased;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreReportRequest extends FormRequest
@@ -17,7 +19,7 @@ class StoreReportRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -28,7 +30,7 @@ class StoreReportRequest extends FormRequest
                 'string',
                 'size:16',
                 function ($attribute, $value, $fail) {
-                    $exists = \App\Models\Deceased::where('nik', $value)
+                    $exists = Deceased::where('nik', $value)
                         ->whereHas('report', function ($query) {
                             $query->whereHas('reportStatus', function ($q) {
                                 $q->whereIn('status_name', ['Pending', 'Disetujui']);
@@ -48,14 +50,14 @@ class StoreReportRequest extends FormRequest
             'address' => 'required|string',
             'death_place' => 'nullable|string|max:255',
             'death_date' => 'required|date|after_or_equal:birth_date',
-            
+
             // Document Validations
             'documents' => 'required|array',
             'documents.1' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // Surat Keterangan Kematian
             'documents.2' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // KTP Almarhum
             'documents.3' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // Kartu Keluarga
             'documents.6' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // KTP Pelapor
-            
+
             // Optional Documents
             'documents.4' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // Surat Pengantar
             'documents.5' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // Visum
@@ -63,7 +65,7 @@ class StoreReportRequest extends FormRequest
             'documents.8' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // Foto Almarhum
         ];
     }
-    
+
     public function messages(): array
     {
         return [
@@ -80,7 +82,7 @@ class StoreReportRequest extends FormRequest
             'address.required' => 'Alamat lengkap wajib diisi.',
             'death_date.required' => 'Tanggal meninggal wajib diisi.',
             'death_date.after_or_equal' => 'Tanggal meninggal tidak boleh mendahului tanggal lahir.',
-            
+
             'documents.1.required' => 'Surat Keterangan Kematian wajib diunggah.',
             'documents.2.required' => 'KTP Almarhum wajib diunggah.',
             'documents.3.required' => 'Kartu Keluarga wajib diunggah.',

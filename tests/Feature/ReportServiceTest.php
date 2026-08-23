@@ -2,29 +2,33 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
 use App\Models\District;
-use App\Models\ReportStatus;
 use App\Models\Report;
-use App\Models\Deceased;
-use Illuminate\Support\Facades\Hash;
+use App\Models\ReportStatus;
+use App\Models\Role;
+use App\Models\User;
 use App\Services\ReportService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class ReportServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $operatorRole;
+
     protected $subOperatorRole;
+
     protected $pelaporRole;
-    
+
     protected $pendingStatus;
+
     protected $perluPerbaikanStatus;
 
     protected $districtPalembang;
+
     protected $districtLahat;
 
     protected $reportService;
@@ -32,7 +36,7 @@ class ReportServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->operatorRole = Role::firstOrCreate(['role_name' => 'Operator']);
         $this->subOperatorRole = Role::firstOrCreate(['role_name' => 'Sub Operator']);
         $this->pelaporRole = Role::firstOrCreate(['role_name' => 'Pelapor']);
@@ -49,14 +53,14 @@ class ReportServiceTest extends TestCase
     protected function createUser($role, $districtId = null)
     {
         return User::create([
-            'full_name' => 'Test ' . $role->role_name,
-            'username' => 'testuser_' . uniqid(),
+            'full_name' => 'Test '.$role->role_name,
+            'username' => 'testuser_'.uniqid(),
             'phone_number' => '08123456789',
-            'email' => 'test_' . uniqid() . '@example.com',
+            'email' => 'test_'.uniqid().'@example.com',
             'password' => Hash::make('Password123'),
             'role_id' => $role->id,
             'district_id' => $districtId,
-            'is_active' => true
+            'is_active' => true,
         ]);
     }
 
@@ -78,19 +82,19 @@ class ReportServiceTest extends TestCase
             'death_place' => 'Palembang',
             'death_date' => '2023-01-01',
             'documents' => [
-                1 => \Illuminate\Http\UploadedFile::fake()->create('doc1.pdf', 100),
-                2 => \Illuminate\Http\UploadedFile::fake()->create('doc2.pdf', 100),
-                3 => \Illuminate\Http\UploadedFile::fake()->create('doc3.pdf', 100),
-                6 => \Illuminate\Http\UploadedFile::fake()->create('doc6.pdf', 100),
-            ]
+                1 => UploadedFile::fake()->create('doc1.pdf', 100),
+                2 => UploadedFile::fake()->create('doc2.pdf', 100),
+                3 => UploadedFile::fake()->create('doc3.pdf', 100),
+                6 => UploadedFile::fake()->create('doc6.pdf', 100),
+            ],
         ];
 
         $response = $this->postJson('/reports', $data);
 
         $response->assertStatus(201);
         $response->assertJsonStructure([
-            'id', 'user_id', 'report_status_id', 'report_number', 
-            'deceased' => ['id', 'name', 'district_id']
+            'id', 'user_id', 'report_status_id', 'report_number',
+            'deceased' => ['id', 'name', 'district_id'],
         ]);
 
         $this->assertDatabaseHas('reports', [
@@ -100,7 +104,7 @@ class ReportServiceTest extends TestCase
 
         $this->assertDatabaseHas('deceased', [
             'name' => 'Almarhum Create',
-            'district_id' => $this->districtPalembang->id
+            'district_id' => $this->districtPalembang->id,
         ]);
     }
 
@@ -121,18 +125,18 @@ class ReportServiceTest extends TestCase
             'death_place' => 'Palembang',
             'death_date' => '2023-01-01',
             'documents' => [
-                1 => \Illuminate\Http\UploadedFile::fake()->create('doc1.pdf', 100),
-                2 => \Illuminate\Http\UploadedFile::fake()->create('doc2.pdf', 100),
-                3 => \Illuminate\Http\UploadedFile::fake()->create('doc3.pdf', 100),
-                6 => \Illuminate\Http\UploadedFile::fake()->create('doc6.pdf', 100),
-            ]
+                1 => UploadedFile::fake()->create('doc1.pdf', 100),
+                2 => UploadedFile::fake()->create('doc2.pdf', 100),
+                3 => UploadedFile::fake()->create('doc3.pdf', 100),
+                6 => UploadedFile::fake()->create('doc6.pdf', 100),
+            ],
         ];
 
         $response = $this->postJson('/reports', $data);
         $reportNumber = $response->json('report_number');
-        
+
         $today = now()->format('Ymd');
-        $this->assertStringStartsWith('SIPKP-' . $today . '-', $reportNumber);
+        $this->assertStringStartsWith('SIPKP-'.$today.'-', $reportNumber);
     }
 
     // OWNERSHIP
@@ -218,7 +222,7 @@ class ReportServiceTest extends TestCase
     public function test_owner_can_update_report_if_status_allows()
     {
         $pelapor = $this->createUser($this->pelaporRole);
-        
+
         $report = $this->reportService->createReport($pelapor, [
             'district_id' => $this->districtPalembang->id,
             'nik' => '1234567890123456',
@@ -237,13 +241,13 @@ class ReportServiceTest extends TestCase
         $this->actingAs($pelapor);
 
         $updateData = [
-            'name' => 'Almarhum Benar'
+            'name' => 'Almarhum Benar',
         ];
 
-        $response = $this->putJson('/reports/' . $report->id, $updateData);
+        $response = $this->putJson('/reports/'.$report->id, $updateData);
 
         $response->assertStatus(200);
-        
+
         // Status should be back to Pending
         $this->assertDatabaseHas('reports', [
             'id' => $report->id,
@@ -252,14 +256,14 @@ class ReportServiceTest extends TestCase
 
         $this->assertDatabaseHas('deceased', [
             'report_id' => $report->id,
-            'name' => 'Almarhum Benar'
+            'name' => 'Almarhum Benar',
         ]);
     }
 
     public function test_owner_cannot_update_report_if_status_not_allows()
     {
         $pelapor = $this->createUser($this->pelaporRole);
-        
+
         $report = $this->reportService->createReport($pelapor, [
             'district_id' => $this->districtPalembang->id,
             'nik' => '1234567890123456',
@@ -277,10 +281,10 @@ class ReportServiceTest extends TestCase
         $this->actingAs($pelapor);
 
         $updateData = [
-            'name' => 'Almarhum Update'
+            'name' => 'Almarhum Update',
         ];
 
-        $response = $this->putJson('/reports/' . $report->id, $updateData);
+        $response = $this->putJson('/reports/'.$report->id, $updateData);
 
         // Policy denies it
         $response->assertStatus(403);
@@ -290,7 +294,7 @@ class ReportServiceTest extends TestCase
     {
         $pelapor1 = $this->createUser($this->pelaporRole);
         $pelapor2 = $this->createUser($this->pelaporRole);
-        
+
         $report = $this->reportService->createReport($pelapor1, [
             'district_id' => $this->districtPalembang->id,
             'nik' => '1234567890123456',
@@ -307,10 +311,10 @@ class ReportServiceTest extends TestCase
         $this->actingAs($pelapor2);
 
         $updateData = [
-            'name' => 'Almarhum Update'
+            'name' => 'Almarhum Update',
         ];
 
-        $response = $this->putJson('/reports/' . $report->id, $updateData);
+        $response = $this->putJson('/reports/'.$report->id, $updateData);
         $response->assertStatus(403);
     }
 }

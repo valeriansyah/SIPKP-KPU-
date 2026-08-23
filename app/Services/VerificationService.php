@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\AuditLog;
 use App\Models\Report;
 use App\Models\ReportStatus;
 use App\Models\ReportVerification;
-use App\Models\AuditLog;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class VerificationService
@@ -16,11 +16,10 @@ class VerificationService
     /**
      * Verify a report and update its status.
      *
-     * @param User $user The authenticated Sub Operator
-     * @param Report $report The report to verify
-     * @param string $decision The slug of the target status ('diproses', 'perlu-perbaikan', 'disetujui', 'ditolak')
-     * @param string|null $notes Verification notes
-     * @return Report
+     * @param  User  $user  The authenticated Sub Operator
+     * @param  Report  $report  The report to verify
+     * @param  string  $decision  The slug of the target status ('diproses', 'perlu-perbaikan', 'disetujui', 'ditolak')
+     * @param  string|null  $notes  Verification notes
      */
     public function verifyReport(User $user, Report $report, string $decision, ?string $notes): Report
     {
@@ -29,11 +28,11 @@ class VerificationService
 
             // 1. Validasi Status Transisi
             if ($currentStatusSlug === 'ditolak') {
-                throw new Exception("Laporan yang sudah ditolak secara permanen tidak dapat diverifikasi ulang.");
+                throw new Exception('Laporan yang sudah ditolak secara permanen tidak dapat diverifikasi ulang.');
             }
 
             if ($currentStatusSlug === 'disetujui') {
-                throw new Exception("Laporan yang sudah disetujui tidak dapat diverifikasi ulang.");
+                throw new Exception('Laporan yang sudah disetujui tidak dapat diverifikasi ulang.');
             }
 
             $statuses = ReportStatus::all();
@@ -41,17 +40,17 @@ class VerificationService
                 return Str::slug($status->status_name, '_') === Str::slug($decision, '_');
             });
 
-            if (!$newStatus) {
-                throw new Exception("Keputusan verifikasi tidak valid.");
+            if (! $newStatus) {
+                throw new Exception('Keputusan verifikasi tidak valid.');
             }
 
             if (Str::slug($newStatus->status_name, '_') === 'pending') {
-                throw new Exception("Sub Operator tidak dapat mengembalikan status menjadi Pending.");
+                throw new Exception('Sub Operator tidak dapat mengembalikan status menjadi Pending.');
             }
 
             // 2. Update status Report
             $report->update([
-                'report_status_id' => $newStatus->id
+                'report_status_id' => $newStatus->id,
             ]);
 
             // 3. Simpan riwayat verifikasi
@@ -66,7 +65,7 @@ class VerificationService
             AuditLog::create([
                 'user_id' => $user->id,
                 'activity' => 'Report Verification',
-                'description' => 'User melakukan verifikasi laporan ' . $report->report_number . ' dengan keputusan ' . $newStatus->status_name,
+                'description' => 'User melakukan verifikasi laporan '.$report->report_number.' dengan keputusan '.$newStatus->status_name,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);

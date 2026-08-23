@@ -28,65 +28,11 @@
 
     <!-- SECTION 2: Statistics Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-6 md:mt-8">
-        <!-- TOTAL -->
-        <div class="bg-white border border-gray-200 border-l-4 border-l-primary shadow-sm rounded-md p-4 flex flex-col justify-between min-h-[120px]">
-            <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Laporan</p>
-                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $metrics['total'] ?? 0 }}</h3>
-                <p class="text-xs text-gray-500 mt-1">Total yang diajukan</p>
-            </div>
-        </div>
-        
-        <!-- PENDING -->
-        <div class="bg-white border border-gray-200 border-l-4 border-l-amber-500 shadow-sm rounded-md p-4 flex flex-col justify-between min-h-[120px]">
-            <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Pending</p>
-                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $metrics['pending'] ?? 0 }}</h3>
-                <p class="text-xs text-gray-500 mt-1">Menunggu verifikasi</p>
-            </div>
-        </div>
-
-        <!-- DIPROSES -->
-        <div class="bg-white border border-gray-200 border-l-4 border-l-blue-600 shadow-sm rounded-md p-4 flex flex-col justify-between min-h-[120px]">
-            <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Diproses</p>
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $metrics['diproses'] ?? 0 }}</h3>
-                <p class="text-xs text-gray-500 mt-1">Sedang ditinjau</p>
-            </div>
-        </div>
-
-        <!-- PERLU PERBAIKAN -->
-        <div class="bg-white border border-gray-200 border-l-4 border-l-orange-500 shadow-sm rounded-md p-4 flex flex-col justify-between min-h-[120px]">
-            <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Perlu Perbaikan</p>
-                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $metrics['perlu_perbaikan'] ?? 0 }}</h3>
-                <p class="text-xs text-gray-500 mt-1">Harus direvisi</p>
-            </div>
-        </div>
-
-        <!-- SELESAI -->
-        <div class="bg-white border border-gray-200 border-l-4 border-l-green-600 shadow-sm rounded-md p-4 flex flex-col justify-between min-h-[120px]">
-            <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Selesai</p>
-                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ ($metrics['disetujui'] ?? 0) + ($metrics['ditolak'] ?? 0) }}</h3>
-                <p class="text-xs text-gray-500 mt-1">Disetujui/Ditolak</p>
-            </div>
-        </div>
+        <x-dashboard.stat-card title="Total Laporan" :value="$metrics['total'] ?? 0" status="total" />
+        <x-dashboard.stat-card title="Pending" :value="$metrics['pending'] ?? 0" status="pending" />
+        <x-dashboard.stat-card title="Diproses" :value="$metrics['diproses'] ?? 0" status="diproses" />
+        <x-dashboard.stat-card title="Perlu Perbaikan" :value="$metrics['perlu_perbaikan'] ?? 0" status="perlu_perbaikan" />
+        <x-dashboard.stat-card title="Selesai" :value="($metrics['disetujui'] ?? 0) + ($metrics['ditolak'] ?? 0)" status="disetujui" />
     </div>
 
     <!-- SECTION 3: Recent Reports -->

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Report;
 use App\Http\Requests\VerifyReportRequest;
+use App\Models\Report;
 use App\Services\VerificationService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -35,7 +35,7 @@ class VerificationController extends Controller
             if ($request->wantsJson()) {
                 return response()->json([
                     'message' => 'Laporan berhasil diverifikasi.',
-                    'data' => $updatedReport
+                    'data' => $updatedReport,
                 ]);
             }
 
@@ -45,7 +45,7 @@ class VerificationController extends Controller
             if ($request->wantsJson()) {
                 return response()->json(['message' => $e->getMessage()], 422);
             }
-            
+
             return redirect()->back()->withErrors(['message' => $e->getMessage()]);
         }
     }

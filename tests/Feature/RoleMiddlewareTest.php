@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class RoleMiddlewareTest extends TestCase
 {
@@ -15,7 +15,7 @@ class RoleMiddlewareTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         Role::firstOrCreate(['role_name' => 'Operator Provinsi']);
         Role::firstOrCreate(['role_name' => 'Sub Operator']);
         Role::firstOrCreate(['role_name' => 'Pelapor']);
@@ -25,12 +25,12 @@ class RoleMiddlewareTest extends TestCase
     {
         return User::create([
             'full_name' => 'Test User',
-            'username' => 'testuser_' . uniqid(),
+            'username' => 'testuser_'.uniqid(),
             'phone_number' => '08123456789',
-            'email' => 'test_' . uniqid() . '@example.com',
+            'email' => 'test_'.uniqid().'@example.com',
             'password' => Hash::make('Password123'),
             'role_id' => Role::where('role_name', $roleName)->first()->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
     }
 

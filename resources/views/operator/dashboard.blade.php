@@ -21,72 +21,13 @@
     </div>
 
     <!-- Metrics Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- TOTAL -->
-        <div class="bg-white border border-gray-200 border-l-4 border-l-primary shadow-sm rounded-md p-4 flex flex-col justify-between min-h-[120px]">
-            <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Laporan</p>
-                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $metrics['total'] ?? 0 }}</h3>
-            </div>
-        </div>
-        
-        <!-- PENDING -->
-        <div class="bg-white border border-gray-200 border-l-4 border-l-amber-500 shadow-sm rounded-md p-4 flex flex-col justify-between min-h-[120px]">
-            <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Pending</p>
-                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $metrics['pending'] ?? 0 }}</h3>
-            </div>
-        </div>
-
-        <!-- DIPROSES -->
-        <div class="bg-white border border-gray-200 border-l-4 border-l-blue-600 shadow-sm rounded-md p-4 flex flex-col justify-between min-h-[120px]">
-            <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Diproses</p>
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $metrics['diproses'] ?? 0 }}</h3>
-            </div>
-        </div>
-
-        <!-- PERLU PERBAIKAN -->
-        <div class="bg-white border border-gray-200 border-l-4 border-l-orange-500 shadow-sm rounded-md p-4 flex flex-col justify-between min-h-[120px]">
-            <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Perbaikan</p>
-                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $metrics['perlu_perbaikan'] ?? 0 }}</h3>
-            </div>
-        </div>
-        
-        <!-- DISETUJUI -->
-        <div class="bg-white border border-gray-200 border-l-4 border-l-green-600 shadow-sm rounded-md p-4 flex flex-col justify-between min-h-[120px]">
-            <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Disetujui</p>
-                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $metrics['disetujui'] ?? 0 }}</h3>
-            </div>
-        </div>
-        
-        <!-- DITOLAK -->
-        <div class="bg-white border border-gray-200 border-l-4 border-l-red-600 shadow-sm rounded-md p-4 flex flex-col justify-between min-h-[120px]">
-            <div class="flex items-start justify-between">
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Ditolak</p>
-                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $metrics['ditolak'] ?? 0 }}</h3>
-            </div>
-        </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <x-dashboard.stat-card title="Total Laporan" :value="$metrics['total'] ?? 0" status="total" />
+        <x-dashboard.stat-card title="Pending" :value="$metrics['pending'] ?? 0" status="pending" />
+        <x-dashboard.stat-card title="Diproses" :value="$metrics['diproses'] ?? 0" status="diproses" />
+        <x-dashboard.stat-card title="Perbaikan" :value="$metrics['perlu_perbaikan'] ?? 0" status="perlu_perbaikan" />
+        <x-dashboard.stat-card title="Disetujui" :value="$metrics['disetujui'] ?? 0" status="disetujui" />
+        <x-dashboard.stat-card title="Ditolak" :value="$metrics['ditolak'] ?? 0" status="ditolak" />
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -97,20 +38,38 @@
                 <x-slot name="header">
                     <h2 class="text-lg font-semibold text-text">Sebaran Laporan per Kabupaten/Kota</h2>
                 </x-slot>
-                <div class="h-64 sm:h-80 bg-gray-50 rounded-md border border-dashed border-gray-300 flex items-center justify-center">
-                    <div class="text-center w-full px-4">
-                        @if(isset($districtStatistics) && $districtStatistics->count() > 0)
-                        <ul class="text-left text-sm divide-y max-h-64 overflow-y-auto w-full max-w-sm mx-auto">
-                            @foreach($districtStatistics as $stat)
-                            <li class="py-2 flex justify-between"><span>{{ $stat->district }}</span> <span class="font-bold">{{ $stat->total }}</span></li>
+                <div class="bg-white p-5">
+                    @if(isset($districtStatistics) && $districtStatistics->count() > 0)
+                        @php
+                            $maxTotal = $districtStatistics->max('total');
+                            $sortedDistricts = $districtStatistics->sortByDesc('total');
+                        @endphp
+                        <ul class="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+                            @foreach($sortedDistricts as $stat)
+                            @php
+                                $widthPercentage = $maxTotal > 0 ? ($stat->total / $maxTotal * 100) : 0;
+                                // Minimal visual width for non-zero items
+                                if($stat->total > 0 && $widthPercentage < 5) $widthPercentage = 5;
+                            @endphp
+                            <li>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-medium text-gray-700">{{ $stat->district }}</span>
+                                    <span class="font-bold text-gray-900">{{ $stat->total }}</span>
+                                </div>
+                                <div class="w-full bg-gray-100 rounded-full h-3">
+                                    <div class="bg-primary h-3 rounded-full transition-all duration-500" style="width: {{ $widthPercentage }}%"></div>
+                                </div>
+                            </li>
                             @endforeach
                         </ul>
-                        @else
-                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                        <p class="text-sm font-medium text-gray-500">Area Bar Chart Provinsi</p>
-                        <p class="text-xs text-gray-400 mt-1">Belum ada data untuk visualisasi chart</p>
-                        @endif
-                    </div>
+                    @else
+                        <div class="flex flex-col items-center justify-center py-10 text-center">
+                            <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <p class="text-sm font-medium text-gray-500">Belum ada data laporan untuk ditampilkan.</p>
+                        </div>
+                    @endif
                 </div>
             </x-ui.card>
         </div>
@@ -124,18 +83,46 @@
                 
                 <div class="space-y-4">
                     @forelse($activities ?? [] as $activity)
+                    @php
+                        $act = strtolower($activity->activity);
+                        if (str_contains($act, 'login')) {
+                            $iconColor = 'bg-blue-100 text-blue-600';
+                            $iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>';
+                        } elseif (str_contains($act, 'logout')) {
+                            $iconColor = 'bg-slate-100 text-slate-600';
+                            $iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>';
+                        } elseif (str_contains($act, 'membuat')) {
+                            $iconColor = 'bg-indigo-100 text-indigo-600';
+                            $iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>';
+                        } elseif (str_contains($act, 'perbaikan') || str_contains($act, 'update')) {
+                            $iconColor = 'bg-amber-100 text-amber-600';
+                            $iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>';
+                        } elseif (str_contains($act, 'verifikasi') || str_contains($act, 'setuju')) {
+                            $iconColor = 'bg-green-100 text-green-600';
+                            $iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>';
+                        } elseif (str_contains($act, 'tolak')) {
+                            $iconColor = 'bg-red-100 text-red-600';
+                            $iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+                        } elseif (str_contains($act, 'upload') || str_contains($act, 'dokumen')) {
+                            $iconColor = 'bg-purple-100 text-purple-600';
+                            $iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>';
+                        } else {
+                            $iconColor = 'bg-gray-100 text-gray-600';
+                            $iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+                        }
+                    @endphp
                     <!-- Activity Item -->
                     <div class="flex gap-3">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full {{ $iconColor }} flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $iconSvg !!}</svg>
                         </div>
                         <div>
-                            <p class="text-sm text-text"><span class="font-medium">{{ $activity->user->full_name }}</span> {{ $activity->activity }}</p>
-                            <p class="text-xs text-text-secondary mt-1">{{ $activity->created_at->diffForHumans() }}</p>
+                            <p class="text-sm text-text font-medium">{{ $activity->activity }}</p>
+                            <p class="text-xs text-text-secondary mt-0.5">Oleh: {{ $activity->user->full_name }} &bull; {{ $activity->created_at->diffForHumans() }}</p>
                         </div>
                     </div>
                     @empty
-                    <p class="text-sm text-gray-500 text-center py-4">Belum ada aktivitas.</p>
+                    <p class="text-sm text-gray-500 text-center py-4">Belum ada aktivitas sistem.</p>
                     @endforelse
                 </div>
                 

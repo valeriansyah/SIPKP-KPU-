@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -30,7 +30,7 @@ class Phase7HPelaporProfileTest extends TestCase
     public function test_pelapor_can_access_profile()
     {
         $response = $this->actingAs($this->user)->get(route('pelapor.profile.edit'));
-        
+
         $response->assertStatus(200);
         $response->assertSee('John Doe');
         $response->assertSee('john@example.com');
@@ -61,7 +61,7 @@ class Phase7HPelaporProfileTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['full_name']);
-        
+
         $this->assertDatabaseMissing('users', [
             'id' => $this->user->id,
             'phone_number' => '081234567890',

@@ -2,14 +2,14 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
+use App\Models\Deceased;
 use App\Models\District;
 use App\Models\Report;
-use App\Models\Deceased;
 use App\Models\ReportStatus;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class MultiDistrictIsolationTest extends TestCase
 {
@@ -18,7 +18,7 @@ class MultiDistrictIsolationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->withoutVite();
 
         // Create Roles
@@ -80,28 +80,28 @@ class MultiDistrictIsolationTest extends TestCase
 
         // Test Palembang Sub Op
         $this->actingAs($subOpPalembang);
-        
+
         // Can view palembang report
-        $response = $this->get('/sub-operator/laporan/' . $reportPalembang->id);
+        $response = $this->get('/sub-operator/laporan/'.$reportPalembang->id);
         $response->assertStatus(200);
 
         // Cannot view lahat report
-        $response = $this->get('/sub-operator/laporan/' . $reportLahat->id);
+        $response = $this->get('/sub-operator/laporan/'.$reportLahat->id);
         $response->assertStatus(403);
-        
+
         // Cannot access pelapor route
         $response = $this->get('/pelapor/laporan/create');
         $response->assertStatus(403);
 
         // Test Lahat Sub Op
         $this->actingAs($subOpLahat);
-        
+
         // Can view lahat report
-        $response = $this->get('/sub-operator/laporan/' . $reportLahat->id);
+        $response = $this->get('/sub-operator/laporan/'.$reportLahat->id);
         $response->assertStatus(200);
 
         // Cannot view palembang report
-        $response = $this->get('/sub-operator/laporan/' . $reportPalembang->id);
+        $response = $this->get('/sub-operator/laporan/'.$reportPalembang->id);
         $response->assertStatus(403);
     }
 }

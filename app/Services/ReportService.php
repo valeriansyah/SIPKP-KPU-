@@ -2,14 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\AuditLog;
+use App\Models\DocumentType;
 use App\Models\Report;
 use App\Models\ReportStatus;
-use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
-use App\Models\DocumentType;
 
 class ReportService
 {
@@ -27,11 +27,11 @@ class ReportService
         try {
             return DB::transaction(function () use ($user, $data, $files, &$uploadedPaths) {
                 $status = ReportStatus::where('status_name', 'Pending')->firstOrFail();
-                
+
                 $today = now()->format('Ymd');
                 // Safe locking count could be needed in extreme concurrency, but for this scope simple count is fine
                 $count = Report::whereDate('created_at', now()->toDateString())->count() + 1;
-                $reportNumber = 'SIPKP-' . $today . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+                $reportNumber = 'SIPKP-'.$today.'-'.str_pad($count, 4, '0', STR_PAD_LEFT);
 
                 $report = Report::create([
                     'user_id' => $user->id,
@@ -53,7 +53,7 @@ class ReportService
                 ]);
 
                 // Process documents
-                if (!empty($files) && is_array($files)) {
+                if (! empty($files) && is_array($files)) {
                     // Ensure document types are loaded to prevent N+1 and fail fast if invalid ID
                     $documentTypeIds = array_keys($files);
                     $documentTypes = DocumentType::whereIn('id', $documentTypeIds)->get()->keyBy('id');
@@ -69,7 +69,7 @@ class ReportService
                 AuditLog::create([
                     'user_id' => $user->id,
                     'activity' => 'Membuat Laporan',
-                    'description' => 'User membuat laporan dengan nomor ' . $report->report_number,
+                    'description' => 'User membuat laporan dengan nomor '.$report->report_number,
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent(),
                 ]);
@@ -79,8 +79,8 @@ class ReportService
         } catch (\Exception $e) {
             // Cleanup uploaded files if the transaction fails
             foreach ($uploadedPaths as $path) {
-                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+                if (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
                 }
             }
             throw $e;
@@ -91,7 +91,7 @@ class ReportService
     {
         // Object-level authorization is enforced at Controller via Policy
         // This method just formats or eager loads what is necessary
-        return $report->load('deceased', 'reportStatus');
+        return $report->load('deceased', 'reportStatus', 'documents.documentType', 'reportVerifications.user');
     }
 
     public function getReportsForUser(User $user)
@@ -136,13 +136,13 @@ class ReportService
 
             $pendingStatus = ReportStatus::where('status_name', 'Pending')->firstOrFail();
             $report->update([
-                'report_status_id' => $pendingStatus->id
+                'report_status_id' => $pendingStatus->id,
             ]);
 
             AuditLog::create([
                 'user_id' => $user->id,
                 'activity' => 'Perbaikan Laporan',
-                'description' => 'User memperbaiki laporan dengan nomor ' . $report->report_number,
+                'description' => 'User memperbaiki laporan dengan nomor '.$report->report_number,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);

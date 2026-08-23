@@ -20,11 +20,8 @@
             <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-primary-dark rounded-full opacity-40 blur-2xl"></div>
             
             <div class="relative z-10 flex flex-col items-center">
-                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center p-2 mb-4 shadow-lg ring-4 ring-primary-light/30">
-                    <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                    </svg>
-                </div>
+                <!-- Logo -->
+                <img src="{{ asset('images/kpu-logo.png') }}" alt="Logo Komisi Pemilihan Umum" class="h-28 w-28 object-contain mb-4 relative z-10 drop-shadow-md">
                 <h1 class="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-90">KPU Provinsi Sumatera Selatan</h1>
                 <h2 class="text-white text-2xl font-extrabold tracking-tight">SIPKP Login</h2>
                 <p class="text-primary-100 text-sm mt-2 max-w-xs mx-auto">Sistem Informasi Pelaporan Kematian Pemilih</p>

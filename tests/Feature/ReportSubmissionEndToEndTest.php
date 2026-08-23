@@ -2,38 +2,43 @@
 
 namespace Tests\Feature;
 
+use App\Models\District;
+use App\Models\Report;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
-use App\Models\District;
-use App\Models\Report;
 
 class ReportSubmissionEndToEndTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     protected $pelaporUser;
+
     protected $pelaporUser2;
+
     protected $subOperatorUser;
+
     protected $operatorUser;
+
     protected $districtA;
+
     protected $districtB;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->artisan('db:seed', ['--class' => 'RoleSeeder']);
         $this->artisan('db:seed', ['--class' => 'ReportStatusSeeder']);
         $this->artisan('db:seed', ['--class' => 'DocumentTypeSeeder']);
 
         $this->districtA = District::create(['name' => 'Palembang', 'code' => '1671']);
         $this->districtB = District::create(['name' => 'Ogan Ilir', 'code' => '1602']);
-        
+
         $pelaporRole = Role::where('role_name', 'Pelapor')->first();
         $subOpRole = Role::where('role_name', 'Sub Operator')->first();
         $opRole = Role::where('role_name', 'Operator Provinsi')->first();
@@ -42,11 +47,12 @@ class ReportSubmissionEndToEndTest extends TestCase
         $this->pelaporUser2 = User::factory()->create(['role_id' => $pelaporRole->id]);
         $this->subOperatorUser = User::factory()->create([
             'role_id' => $subOpRole->id,
-            'district_id' => $this->districtA->id
+            'district_id' => $this->districtA->id,
         ]);
         $this->operatorUser = User::factory()->create(['role_id' => $opRole->id]);
 
         Storage::fake('public');
+        Storage::fake('local');
     }
 
     protected function getValidPayload($overrides = [])
@@ -87,10 +93,10 @@ class ReportSubmissionEndToEndTest extends TestCase
         $this->assertDatabaseCount('audit_logs', 5); // 1 create + 4 docs
 
         $report = Report::first();
-        
+
         // Ownership Validation
         $this->assertEquals($this->pelaporUser->id, $report->user_id);
-        
+
         // Initial status validation
         $this->assertEquals('Pending', $report->reportStatus->status_name);
 
@@ -114,7 +120,7 @@ class ReportSubmissionEndToEndTest extends TestCase
 
         // Second submission with same NIK
         $response = $this->actingAs($this->pelaporUser)->post(route('pelapor.laporan.store'), $payload);
-        
+
         $response->assertSessionHasErrors(['nik']);
         $this->assertDatabaseCount('reports', 1); // Should not increase
     }
@@ -123,7 +129,7 @@ class ReportSubmissionEndToEndTest extends TestCase
     {
         $payload = $this->getValidPayload();
         $this->actingAs($this->pelaporUser)->post(route('pelapor.laporan.store'), $payload);
-        
+
         $report = Report::first();
 
         $response = $this->actingAs($this->pelaporUser2)->get(route('pelapor.laporan.show', $report->id));

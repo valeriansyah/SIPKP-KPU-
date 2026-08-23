@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Services\DashboardService;
 use Illuminate\Http\Request;
-use App\Models\AuditLog;
 
 class DashboardController extends Controller
 {
@@ -18,7 +18,7 @@ class DashboardController extends Controller
     public function pelapor(Request $request)
     {
         $user = $request->user();
-        
+
         $metrics = $this->dashboardService->getPelaporMetrics($user);
         $recentReports = $this->dashboardService->getPelaporRecentReports($user, 5);
 
@@ -28,7 +28,7 @@ class DashboardController extends Controller
     public function subOperator(Request $request)
     {
         $user = $request->user();
-        
+
         $metrics = $this->dashboardService->getSubOperatorMetrics($user);
         $queue = $this->dashboardService->getSubOperatorQueue($user, 10);
 
@@ -40,7 +40,7 @@ class DashboardController extends Controller
         $metrics = $this->dashboardService->getOperatorMetrics();
         $recentReports = $this->dashboardService->getOperatorRecentReports(5);
         $districtStatistics = $this->dashboardService->getDistrictStatistics();
-        
+
         // Let's also fetch AuditLogs for Aktivitas Sistem Terakhir
         $activities = AuditLog::with('user', 'user.role')
             ->orderBy('created_at', 'desc')

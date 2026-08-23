@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class DistrictSeeder extends Seeder
 {
-
     public function run(): void
     {
         DB::table('districts')->upsert(

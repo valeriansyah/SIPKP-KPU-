@@ -2,35 +2,41 @@
 
 namespace Tests\Feature;
 
+use App\Models\Deceased;
+use App\Models\District;
+use App\Models\Document;
+use App\Models\DocumentType;
+use App\Models\Report;
+use App\Models\ReportStatus;
+use App\Models\Role;
+use App\Models\User;
+use App\Services\DocumentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
-use App\Models\District;
-use App\Models\ReportStatus;
-use App\Models\Report;
-use App\Models\Deceased;
-use App\Models\DocumentType;
-use App\Models\Document;
-use Illuminate\Support\Facades\Hash;
-use App\Services\DocumentService;
 
 class DocumentServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $pelaporRole;
+
     protected $operatorRole;
+
     protected $subOperatorRole;
-    
+
     protected $pendingStatus;
+
     protected $perluPerbaikanStatus;
+
     protected $disetujuiStatus;
 
     protected $districtPalembang;
+
     protected $ktpType;
+
     protected $kkType;
 
     protected $documentService;
@@ -38,8 +44,9 @@ class DocumentServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         Storage::fake('public');
+        Storage::fake('local');
 
         $this->pelaporRole = Role::firstOrCreate(['role_name' => 'Pelapor']);
         $this->operatorRole = Role::firstOrCreate(['role_name' => 'Operator']);
@@ -50,23 +57,23 @@ class DocumentServiceTest extends TestCase
         $this->disetujuiStatus = ReportStatus::firstOrCreate(['status_name' => 'Disetujui']);
 
         $this->districtPalembang = District::firstOrCreate(['name' => 'Palembang', 'code' => '1671']);
-        
+
         $this->ktpType = DocumentType::firstOrCreate(['name' => 'KTP Almarhum', 'is_required' => true]);
         $this->kkType = DocumentType::firstOrCreate(['name' => 'Kartu Keluarga (KK)', 'is_required' => true]);
 
-        $this->documentService = new DocumentService();
+        $this->documentService = new DocumentService;
     }
 
     protected function createUser($role)
     {
         return User::create([
-            'full_name' => 'Test ' . $role->role_name,
-            'username' => 'testuser_' . uniqid(),
+            'full_name' => 'Test '.$role->role_name,
+            'username' => 'testuser_'.uniqid(),
             'phone_number' => '08123456789',
-            'email' => 'test_' . uniqid() . '@example.com',
+            'email' => 'test_'.uniqid().'@example.com',
             'password' => Hash::make('Password123'),
             'role_id' => $role->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
     }
 
@@ -110,7 +117,7 @@ class DocumentServiceTest extends TestCase
         ]);
 
         $response->assertStatus(201);
-        
+
         $this->assertDatabaseHas('documents', [
             'report_id' => $report->id,
             'document_type_id' => $this->ktpType->id,
@@ -131,7 +138,7 @@ class DocumentServiceTest extends TestCase
 
         $file = UploadedFile::fake()->image('ktp.jpg');
 
-        $response = $this->post("/reports/999/documents", [
+        $response = $this->post('/reports/999/documents', [
             'document_type_id' => $this->ktpType->id,
             'file' => $file,
         ]);
@@ -163,7 +170,7 @@ class DocumentServiceTest extends TestCase
     {
         $pelapor1 = $this->createUser($this->pelaporRole);
         $pelapor2 = $this->createUser($this->pelaporRole);
-        
+
         $reportPelapor1 = $this->createReport($pelapor1, $this->pendingStatus);
 
         $this->actingAs($pelapor2);
@@ -183,7 +190,7 @@ class DocumentServiceTest extends TestCase
     public function test_cannot_upload_document_if_report_status_not_allowed()
     {
         $pelapor = $this->createUser($this->pelaporRole);
-        
+
         // Report status = Disetujui
         $report = $this->createReport($pelapor, $this->disetujuiStatus);
 
@@ -276,5 +283,165 @@ class DocumentServiceTest extends TestCase
         ]);
 
         $response->assertStatus(403);
+    }
+
+    // Security Tests for Document Preview and Download
+    public function test_missing_document_returns_graceful_redirect()
+    {
+        $pelapor = $this->createUser($this->pelaporRole);
+        $report = $this->createReport($pelapor, $this->pendingStatus);
+
+        // Create a document record pointing to a missing file
+        $document = Document::create([
+            'report_id' => $report->id,
+            'document_type_id' => $this->ktpType->id,
+            'file_name' => 'missing.pdf',
+            'file_path' => 'dummy/sipkp/missing.pdf',
+            'mime_type' => 'application/pdf',
+            'file_size' => 12345,
+        ]);
+
+        $this->actingAs($pelapor);
+        $response = $this->get("/documents/{$document->id}/preview");
+
+        // Should not be 500 or 404, but a redirect back with error
+        $response->assertStatus(302);
+        $response->assertSessionHas('error', 'File dokumen fisik tidak ditemukan di server.');
+    }
+
+    public function test_pelapor_can_preview_own_document()
+    {
+        $pelapor = $this->createUser($this->pelaporRole);
+        $report = $this->createReport($pelapor, $this->pendingStatus);
+
+        $this->actingAs($pelapor);
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $upload = $this->post("/reports/{$report->id}/documents", [
+            'document_type_id' => $this->ktpType->id,
+            'file' => $file,
+        ]);
+
+        $docId = $upload->json('id');
+        $response = $this->get("/documents/{$docId}/preview");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_pelapor_cannot_preview_other_document()
+    {
+        $pelapor1 = $this->createUser($this->pelaporRole);
+        $pelapor2 = $this->createUser($this->pelaporRole);
+        $report1 = $this->createReport($pelapor1, $this->pendingStatus);
+
+        $this->actingAs($pelapor1);
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $upload = $this->post("/reports/{$report1->id}/documents", [
+            'document_type_id' => $this->ktpType->id,
+            'file' => $file,
+        ]);
+
+        $docId = $upload->json('id');
+
+        $this->actingAs($pelapor2);
+        $response = $this->get("/documents/{$docId}/preview");
+
+        $response->assertStatus(403);
+    }
+
+    public function test_sub_operator_can_preview_district_document()
+    {
+        $pelapor = $this->createUser($this->pelaporRole);
+        $report = $this->createReport($pelapor, $this->pendingStatus);
+
+        $this->actingAs($pelapor);
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $upload = $this->post("/reports/{$report->id}/documents", [
+            'document_type_id' => $this->ktpType->id,
+            'file' => $file,
+        ]);
+
+        $docId = $upload->json('id');
+
+        $subOperator = $this->createUser($this->subOperatorRole);
+        $subOperator->district_id = $report->deceased->district_id;
+        $subOperator->save();
+
+        $this->actingAs($subOperator);
+        $response = $this->get("/documents/{$docId}/preview");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_sub_operator_cannot_preview_other_district_document()
+    {
+        $pelapor = $this->createUser($this->pelaporRole);
+        $report = $this->createReport($pelapor, $this->pendingStatus);
+
+        $this->actingAs($pelapor);
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $upload = $this->post("/reports/{$report->id}/documents", [
+            'document_type_id' => $this->ktpType->id,
+            'file' => $file,
+        ]);
+
+        $docId = $upload->json('id');
+
+        $subOperator = $this->createUser($this->subOperatorRole);
+        
+        // Create a different district
+        $otherDistrict = District::firstOrCreate(['name' => 'Prabumulih', 'code' => '1672']);
+        $subOperator->district_id = $otherDistrict->id;
+        $subOperator->save();
+
+        $this->actingAs($subOperator);
+        $response = $this->get("/documents/{$docId}/preview");
+
+        $response->assertStatus(403);
+    }
+
+    public function test_operator_provinsi_can_preview_any_document()
+    {
+        $operatorProvinsiRole = Role::firstOrCreate(['role_name' => 'Operator Provinsi']);
+
+        $pelapor = $this->createUser($this->pelaporRole);
+        $report = $this->createReport($pelapor, $this->pendingStatus);
+
+        $this->actingAs($pelapor);
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $upload = $this->post("/reports/{$report->id}/documents", [
+            'document_type_id' => $this->ktpType->id,
+            'file' => $file,
+        ]);
+
+        $docId = $upload->json('id');
+
+        $operatorProvinsi = $this->createUser($operatorProvinsiRole);
+
+        $this->actingAs($operatorProvinsi);
+        $response = $this->get("/documents/{$docId}/preview");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_unauthenticated_cannot_preview_document()
+    {
+        $pelapor = $this->createUser($this->pelaporRole);
+        $report = $this->createReport($pelapor, $this->pendingStatus);
+
+        $this->actingAs($pelapor);
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $upload = $this->post("/reports/{$report->id}/documents", [
+            'document_type_id' => $this->ktpType->id,
+            'file' => $file,
+        ]);
+
+        $docId = $upload->json('id');
+
+        // Log out
+        auth()->logout();
+
+        $response = $this->get("/documents/{$docId}/preview");
+
+        $response->assertRedirect(route('login'));
     }
 }

@@ -15,6 +15,7 @@ class DashboardService
     public function getPelaporMetrics(User $user): array
     {
         $query = Report::where('user_id', $user->id);
+
         return $this->getMetricsForQuery($query);
     }
 
@@ -38,6 +39,7 @@ class DashboardService
         $query = Report::whereHas('deceased', function ($q) use ($user) {
             $q->where('district_id', $user->district_id);
         });
+
         return $this->getMetricsForQuery($query);
     }
 
@@ -68,6 +70,7 @@ class DashboardService
     public function getOperatorMetrics(): array
     {
         $query = Report::query();
+
         return $this->getMetricsForQuery($query);
     }
 
@@ -96,7 +99,7 @@ class DashboardService
             ->take($limit)
             ->get();
     }
-    
+
     /**
      * Helper to compute metrics from a base query.
      */
@@ -106,9 +109,9 @@ class DashboardService
         $statusCounts = (clone $query)->select('report_status_id', DB::raw('count(*) as total'))
             ->groupBy('report_status_id')
             ->pluck('total', 'report_status_id');
-            
+
         $statuses = ReportStatus::all()->keyBy('id');
-        
+
         $metrics = [
             'total' => $statusCounts->sum(),
             'pending' => 0,
@@ -117,28 +120,28 @@ class DashboardService
             'disetujui' => 0,
             'ditolak' => 0,
         ];
-        
+
         foreach ($statusCounts as $statusId => $count) {
             $statusName = $statuses[$statusId]->status_name ?? '';
             switch ($statusName) {
-                case 'Pending': 
-                    $metrics['pending'] = $count; 
+                case 'Pending':
+                    $metrics['pending'] = $count;
                     break;
-                case 'Diproses': 
-                    $metrics['diproses'] = $count; 
+                case 'Diproses':
+                    $metrics['diproses'] = $count;
                     break;
-                case 'Perlu Perbaikan': 
-                    $metrics['perlu_perbaikan'] = $count; 
+                case 'Perlu Perbaikan':
+                    $metrics['perlu_perbaikan'] = $count;
                     break;
-                case 'Disetujui': 
-                    $metrics['disetujui'] = $count; 
+                case 'Disetujui':
+                    $metrics['disetujui'] = $count;
                     break;
-                case 'Ditolak': 
-                    $metrics['ditolak'] = $count; 
+                case 'Ditolak':
+                    $metrics['ditolak'] = $count;
                     break;
             }
         }
-        
+
         return $metrics;
     }
 }

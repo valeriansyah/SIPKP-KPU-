@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
-use Tests\TestCase;
 use Mockery;
+use Tests\TestCase;
 
 class Phase7HGoogleOAuthTest extends TestCase
 {
@@ -79,7 +79,7 @@ class Phase7HGoogleOAuthTest extends TestCase
 
         $response->assertRedirect(route('pelapor.dashboard'));
         $this->assertAuthenticated();
-        
+
         $this->assertDatabaseCount('users', 1);
     }
 

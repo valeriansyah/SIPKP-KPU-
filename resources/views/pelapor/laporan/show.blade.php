@@ -82,9 +82,13 @@
                                 </span>
                             </div>
                             <div class="ml-4 flex-shrink-0">
-                                <a href="{{ Storage::url($document->file_path) }}" target="_blank" class="font-medium text-primary hover:text-primary-dark">
-                                    Lihat
-                                </a>
+                                @if($document->is_dummy)
+                                    <span class="text-sm text-gray-400 italic">File demo tidak tersedia</span>
+                                @else
+                                    <a href="{{ route('documents.preview', $document->id) }}" target="_blank" class="font-medium text-primary hover:text-primary-dark">
+                                        Lihat
+                                    </a>
+                                @endif
                             </div>
                         </li>
                     @empty

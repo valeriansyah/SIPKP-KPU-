@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreDocumentRequest;
 use App\Http\Requests\ReplaceDocumentRequest;
+use App\Http\Requests\StoreDocumentRequest;
 use App\Models\Document;
-use App\Models\Report;
 use App\Models\DocumentType;
+use App\Models\Report;
 use App\Services\DocumentService;
-use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
@@ -31,11 +32,12 @@ class DocumentController extends Controller
 
         try {
             $document = $this->documentService->uploadDocument(
-                $request->user(), 
-                $report, 
-                $documentType, 
+                $request->user(),
+                $report,
+                $documentType,
                 $request->file('file')
             );
+
             return response()->json($document, 201);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 422);
@@ -49,10 +51,11 @@ class DocumentController extends Controller
 
         try {
             $newDocument = $this->documentService->replaceDocument(
-                $request->user(), 
-                $document, 
+                $request->user(),
+                $document,
                 $request->file('file')
             );
+
             return response()->json($newDocument);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 422);
@@ -66,9 +69,38 @@ class DocumentController extends Controller
 
         try {
             $this->documentService->deleteDocument($request->user(), $document);
+
             return response()->json(['message' => 'Document deleted successfully']);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
+    }
+
+    public function show(Request $request, Document $document)
+    {
+        $this->authorize('view', $document->report);
+
+        $path = $document->file_path;
+        if (Storage::disk('local')->exists($path)) {
+            return Storage::disk('local')->response($path);
+        } elseif (Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->response($path);
+        }
+
+        return redirect()->back()->with('error', 'File dokumen fisik tidak ditemukan di server.');
+    }
+
+    public function download(Request $request, Document $document)
+    {
+        $this->authorize('view', $document->report);
+
+        $path = $document->file_path;
+        if (Storage::disk('local')->exists($path)) {
+            return Storage::disk('local')->download($path, $document->file_name);
+        } elseif (Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->download($path, $document->file_name);
+        }
+
+        return redirect()->back()->with('error', 'File dokumen fisik tidak ditemukan di server.');
     }
 }

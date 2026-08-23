@@ -15,7 +15,7 @@ class DeceasedFactory extends Factory
     {
         $deathDate = fake()->dateTimeBetween('-2 years', 'now');
         $birthDate = fake()->dateTimeBetween('-80 years', '-20 years');
-        
+
         return [
             'report_id' => Report::factory(),
             'district_id' => District::inRandomOrder()->first()->id ?? 1,

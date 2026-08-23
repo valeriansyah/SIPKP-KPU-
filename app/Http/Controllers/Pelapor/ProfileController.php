@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Pelapor;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
     public function edit()
     {
         $user = Auth::user();
+
         return view('pelapor.profile.edit', compact('user'));
     }
 
@@ -29,8 +31,8 @@ class ProfileController extends Controller
             'full_name' => $validated['full_name'],
         ];
 
-        if (!empty($validated['password'])) {
-            $updateData['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+        if (! empty($validated['password'])) {
+            $updateData['password'] = Hash::make($validated['password']);
         }
 
         $user->update($updateData);

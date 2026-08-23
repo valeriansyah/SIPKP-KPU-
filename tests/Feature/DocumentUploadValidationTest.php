@@ -2,36 +2,38 @@
 
 namespace Tests\Feature;
 
+use App\Models\District;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
-use App\Models\District;
 
 class DocumentUploadValidationTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     protected $pelaporUser;
+
     protected $district;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->artisan('db:seed', ['--class' => 'RoleSeeder']);
         $this->artisan('db:seed', ['--class' => 'ReportStatusSeeder']);
         $this->artisan('db:seed', ['--class' => 'DocumentTypeSeeder']);
 
         $this->district = District::create(['name' => 'Palembang', 'code' => '1671']);
-        
+
         $pelaporRole = Role::where('role_name', 'Pelapor')->first();
         $this->pelaporUser = User::factory()->create(['role_id' => $pelaporRole->id]);
 
         Storage::fake('public');
+        Storage::fake('local');
     }
 
     protected function getValidPayload($overrides = [])

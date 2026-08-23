@@ -2,23 +2,23 @@
 
 namespace Tests\Feature;
 
+use App\Models\AuditLog;
+use App\Models\Deceased;
+use App\Models\District;
+use App\Models\Document;
+use App\Models\DocumentType;
+use App\Models\Report;
+use App\Models\ReportStatus;
+use App\Models\ReportVerification;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
-use App\Models\Role;
-use App\Models\User;
-use App\Models\District;
-use App\Models\Deceased;
-use App\Models\DocumentType;
-use App\Models\Document;
-use App\Models\ReportStatus;
-use App\Models\Report;
-use App\Models\ReportVerification;
-use App\Models\AuditLog;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EloquentRelationshipTest extends TestCase
 {
@@ -26,8 +26,8 @@ class EloquentRelationshipTest extends TestCase
 
     public function test_role_user_relationship()
     {
-        $role = new Role();
-        $user = new User();
+        $role = new Role;
+        $user = new User;
 
         $this->assertInstanceOf(HasMany::class, $role->users());
         $this->assertInstanceOf(User::class, $role->users()->getRelated());
@@ -39,8 +39,8 @@ class EloquentRelationshipTest extends TestCase
 
     public function test_district_user_relationship()
     {
-        $district = new District();
-        $user = new User();
+        $district = new District;
+        $user = new User;
 
         $this->assertInstanceOf(HasMany::class, $district->users());
         $this->assertInstanceOf(User::class, $district->users()->getRelated());
@@ -52,8 +52,8 @@ class EloquentRelationshipTest extends TestCase
 
     public function test_district_deceased_relationship()
     {
-        $district = new District();
-        $deceased = new Deceased();
+        $district = new District;
+        $deceased = new Deceased;
 
         $this->assertInstanceOf(HasMany::class, $district->deceased());
         $this->assertInstanceOf(Deceased::class, $district->deceased()->getRelated());
@@ -65,8 +65,8 @@ class EloquentRelationshipTest extends TestCase
 
     public function test_document_type_document_relationship()
     {
-        $documentType = new DocumentType();
-        $document = new Document();
+        $documentType = new DocumentType;
+        $document = new Document;
 
         $this->assertInstanceOf(HasMany::class, $documentType->documents());
         $this->assertInstanceOf(Document::class, $documentType->documents()->getRelated());
@@ -78,8 +78,8 @@ class EloquentRelationshipTest extends TestCase
 
     public function test_report_status_report_relationship()
     {
-        $reportStatus = new ReportStatus();
-        $report = new Report();
+        $reportStatus = new ReportStatus;
+        $report = new Report;
 
         $this->assertInstanceOf(HasMany::class, $reportStatus->reports());
         $this->assertInstanceOf(Report::class, $reportStatus->reports()->getRelated());
@@ -92,8 +92,8 @@ class EloquentRelationshipTest extends TestCase
 
     public function test_report_status_report_verification_relationship()
     {
-        $reportStatus = new ReportStatus();
-        $reportVerification = new ReportVerification();
+        $reportStatus = new ReportStatus;
+        $reportVerification = new ReportVerification;
 
         $this->assertInstanceOf(HasMany::class, $reportStatus->reportVerifications());
         $this->assertInstanceOf(ReportVerification::class, $reportStatus->reportVerifications()->getRelated());
@@ -104,11 +104,10 @@ class EloquentRelationshipTest extends TestCase
         $this->assertEquals('report_status_id', $reportVerification->reportStatus()->getForeignKeyName());
     }
 
-
     public function test_user_audit_log_relationship()
     {
-        $user = new User();
-        $auditLog = new AuditLog();
+        $user = new User;
+        $auditLog = new AuditLog;
 
         $this->assertInstanceOf(HasMany::class, $user->auditLogs());
         $this->assertInstanceOf(AuditLog::class, $user->auditLogs()->getRelated());
@@ -120,8 +119,8 @@ class EloquentRelationshipTest extends TestCase
 
     public function test_user_report_relationship()
     {
-        $user = new User();
-        $report = new Report();
+        $user = new User;
+        $report = new Report;
 
         $this->assertInstanceOf(HasMany::class, $user->reports());
         $this->assertInstanceOf(Report::class, $user->reports()->getRelated());
@@ -133,8 +132,8 @@ class EloquentRelationshipTest extends TestCase
 
     public function test_user_report_verification_relationship()
     {
-        $user = new User();
-        $reportVerification = new ReportVerification();
+        $user = new User;
+        $reportVerification = new ReportVerification;
 
         $this->assertInstanceOf(HasMany::class, $user->reportVerifications());
         $this->assertInstanceOf(ReportVerification::class, $user->reportVerifications()->getRelated());
@@ -146,8 +145,8 @@ class EloquentRelationshipTest extends TestCase
 
     public function test_report_deceased_relationship()
     {
-        $report = new Report();
-        $deceased = new Deceased();
+        $report = new Report;
+        $deceased = new Deceased;
 
         $this->assertInstanceOf(HasOne::class, $report->deceased());
         $this->assertInstanceOf(Deceased::class, $report->deceased()->getRelated());
@@ -159,8 +158,8 @@ class EloquentRelationshipTest extends TestCase
 
     public function test_report_document_relationship()
     {
-        $report = new Report();
-        $document = new Document();
+        $report = new Report;
+        $document = new Document;
 
         $this->assertInstanceOf(HasMany::class, $report->documents());
         $this->assertInstanceOf(Document::class, $report->documents()->getRelated());
@@ -172,8 +171,8 @@ class EloquentRelationshipTest extends TestCase
 
     public function test_report_report_verification_relationship()
     {
-        $report = new Report();
-        $reportVerification = new ReportVerification();
+        $report = new Report;
+        $reportVerification = new ReportVerification;
 
         $this->assertInstanceOf(HasMany::class, $report->reportVerifications());
         $this->assertInstanceOf(ReportVerification::class, $report->reportVerifications()->getRelated());
@@ -198,7 +197,7 @@ class EloquentRelationshipTest extends TestCase
             }
         }
 
-        $this->assertTrue($isUnique, "Deceased table does not have a UNIQUE index on report_id");
+        $this->assertTrue($isUnique, 'Deceased table does not have a UNIQUE index on report_id');
     }
 
     public function test_user_soft_deletes()
@@ -206,15 +205,15 @@ class EloquentRelationshipTest extends TestCase
         $this->assertContains(
             SoftDeletes::class,
             class_uses_recursive(User::class),
-            "User model should use SoftDeletes trait."
+            'User model should use SoftDeletes trait.'
         );
     }
 
     public function test_report_verification_timestamps()
     {
-        $model = new ReportVerification();
-        
-        $this->assertTrue($model->usesTimestamps(), "ReportVerification should use timestamps for created_at");
-        $this->assertNull($model::UPDATED_AT, "ReportVerification UPDATED_AT should be null to be append-only");
+        $model = new ReportVerification;
+
+        $this->assertTrue($model->usesTimestamps(), 'ReportVerification should use timestamps for created_at');
+        $this->assertNull($model::UPDATED_AT, 'ReportVerification UPDATED_AT should be null to be append-only');
     }
 }
