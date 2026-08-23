@@ -18,10 +18,12 @@
                 </p>
             </div>
             <div class="flex-shrink-0">
-                <x-ui.button variant="primary" class="shadow-sm w-full md:w-auto h-11 px-6">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Buat Laporan Baru
-                </x-ui.button>
+                <a href="{{ route('pelapor.laporan.create') }}" class="inline-block w-full md:w-auto">
+                    <x-ui.button variant="primary" class="shadow-sm w-full h-11 px-6">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Buat Laporan Baru
+                    </x-ui.button>
+                </a>
             </div>
         </div>
     </x-ui.card>
@@ -89,10 +91,12 @@
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 </x-slot>
                 <x-slot name="action">
-                    <x-ui.button variant="primary">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        Buat Laporan Baru
-                    </x-ui.button>
+                    <a href="{{ route('pelapor.laporan.create') }}">
+                        <x-ui.button variant="primary">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Buat Laporan Baru
+                        </x-ui.button>
+                    </a>
                 </x-slot>
             </x-ui.empty-state>
             @endif

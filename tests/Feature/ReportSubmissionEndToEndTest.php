@@ -154,10 +154,27 @@ class ReportSubmissionEndToEndTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_operator_provinsi_can_access_monitoring()
+    public function test_operator_provinsi_can_access_monitoring_and_detail()
     {
+        $payload = $this->getValidPayload();
+        $this->actingAs($this->pelaporUser)->post(route('pelapor.laporan.store'), $payload);
+        $report = Report::first();
+
         $response = $this->actingAs($this->operatorUser)->get(route('operator.monitoring'));
         $response->assertStatus(200);
         $response->assertViewIs('operator.monitoring');
+        $response->assertSee(route('operator.laporan.show', $report->id));
+
+        $detailResponse = $this->actingAs($this->operatorUser)->get(route('operator.laporan.show', $report->id));
+        $detailResponse->assertStatus(200);
+        $detailResponse->assertViewIs('operator.laporan.show');
+        $detailResponse->assertSee($report->report_number);
+        $detailResponse->assertSee($report->deceased->nik);
+
+        // Sub Operator accessing operator detail route -> 403
+        $this->actingAs($this->subOperatorUser)->get(route('operator.laporan.show', $report->id))->assertStatus(403);
+        
+        // Pelapor accessing operator detail route -> 403
+        $this->actingAs($this->pelaporUser)->get(route('operator.laporan.show', $report->id))->assertStatus(403);
     }
 }

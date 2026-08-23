@@ -89,7 +89,9 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="{{ route('operator.laporan.show', $report->id) }}" class="text-primary hover:text-primary-dark">Detail</a>
+                                    <a href="{{ route('operator.laporan.show', $report->id) }}" class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-primary bg-primary-light/20 hover:bg-primary-light/40 transition-colors">
+                                        Lihat Detail
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
