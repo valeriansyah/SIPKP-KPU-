@@ -46,12 +46,14 @@
                         <span class="text-sm font-medium text-white">Monitoring Laporan</span>
                     </a>
                 </li>
+                @can('manage-master-data')
                 <li>
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-primary-light transition-colors opacity-70 cursor-not-allowed" title="Belum Diimplementasikan">
+                    <a href="{{ route('operator.master-data.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-primary-light transition-colors {{ request()->routeIs('operator.master-data.*') ? 'bg-primary-light border-l-4 border-accent' : '' }}">
                         <svg class="w-5 h-5 opacity-75 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
                         <span class="text-sm font-medium text-white">Master Data</span>
                     </a>
                 </li>
+                @endcan
             @elseif(strtolower($roleName) === 'sub operator')
                 <li>
                     <a href="{{ route('sub_operator.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-md hover:bg-primary-light transition-colors {{ request()->routeIs('sub_operator.dashboard') ? 'bg-primary-light border-l-4 border-accent' : '' }}">

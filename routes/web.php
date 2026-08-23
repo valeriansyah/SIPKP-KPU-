@@ -45,6 +45,16 @@ Route::middleware(['auth', 'role:operator_provinsi'])->prefix('operator')->name(
     Route::get('/dashboard', [DashboardController::class, 'operator'])->name('dashboard');
     Route::get('/monitoring', [ReportController::class, 'index'])->name('monitoring');
     Route::get('/laporan/{report}', [ReportController::class, 'show'])->name('laporan.show');
+
+    Route::middleware(['can:manage-master-data'])->prefix('master-data')->name('master-data.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Operator\MasterDataController::class, 'index'])->name('index');
+        Route::resource('districts', \App\Http\Controllers\Operator\DistrictController::class)->except(['show', 'destroy']);
+        Route::post('districts/{district}/destroy', [\App\Http\Controllers\Operator\DistrictController::class, 'destroy'])->name('districts.destroy'); // use post for safe delete
+        Route::resource('document-types', \App\Http\Controllers\Operator\DocumentTypeController::class)->except(['show', 'destroy']);
+        Route::post('document-types/{document_type}/destroy', [\App\Http\Controllers\Operator\DocumentTypeController::class, 'destroy'])->name('document-types.destroy');
+        Route::resource('report-statuses', \App\Http\Controllers\Operator\ReportStatusController::class)->only(['index', 'edit', 'update']);
+        Route::resource('sub-operators', \App\Http\Controllers\Operator\SubOperatorController::class)->except(['show', 'destroy'])->middleware('can:manage-sub-operator');
+    });
 });
 
 Route::middleware(['auth'])->group(function () {
