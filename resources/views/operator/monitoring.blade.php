@@ -10,7 +10,7 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
         <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
             <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</h3>
             <p class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['total'] }}</p>

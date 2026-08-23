@@ -1,173 +1,228 @@
 @extends('layouts.app')
 
+@section('title', 'Detail Verifikasi')
+
 @section('content')
-<div class="space-y-6">
-    <div class="flex items-center justify-between">
+<div class="space-y-6 md:space-y-8 max-w-5xl mx-auto">
+    <!-- Header Action -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-semibold text-text">Detail & Verifikasi Laporan</h1>
-            <p class="text-sm text-muted mt-1">Rincian laporan {{ $report->report_number }}</p>
+            <h1 class="text-2xl font-bold text-gray-900">Detail & Verifikasi Laporan</h1>
+            <p class="text-sm text-gray-500 mt-1">Laporan Nomor: <span class="font-semibold text-gray-900">{{ $report->report_number }}</span></p>
         </div>
-        <a href="{{ route('sub_operator.antrean') }}" class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors text-sm font-medium">
-            Kembali
+        <a href="{{ route('sub_operator.antrean') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Kembali ke Antrean
         </a>
     </div>
 
     @if(session('success'))
-        <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
-            <strong class="font-bold">Berhasil!</strong>
-            <span class="block sm:inline">{{ session('success') }}</span>
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-md shadow-sm">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                </div>
+            </div>
         </div>
     @endif
 
     @if ($errors->any())
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong class="font-bold">Verifikasi Gagal!</strong>
-            <ul class="list-disc pl-5 mt-1 text-sm">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-md shadow-sm">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Verifikasi Gagal!</h3>
+                    <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
         </div>
     @endif
 
-    <div class="bg-surface rounded border border-gray-200 overflow-hidden shadow-sm">
-        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+    <!-- 1. Informasi Laporan -->
+    <x-ui.card class="overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h2 class="text-lg font-semibold text-text">Informasi Laporan</h2>
-                <p class="text-sm text-muted">Dibuat pada {{ $report->created_at->format('d F Y, H:i') }}</p>
+                <h2 class="text-lg font-bold text-gray-900">1. Informasi Laporan</h2>
+                <p class="text-sm text-gray-500 mt-1">Masuk pada {{ $report->created_at->format('d F Y, H:i') }} WIB</p>
             </div>
-            @php
-                $statusClass = 'bg-gray-100 text-gray-800';
-                if($report->reportStatus->status_name === 'Pending') $statusClass = 'bg-yellow-100 text-yellow-800';
-                if($report->reportStatus->status_name === 'Disetujui') $statusClass = 'bg-green-100 text-green-800';
-                if($report->reportStatus->status_name === 'Ditolak') $statusClass = 'bg-red-100 text-red-800';
-                if($report->reportStatus->status_name === 'Perlu Perbaikan') $statusClass = 'bg-orange-100 text-orange-800';
-            @endphp
-            <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full {{ $statusClass }}">
-                {{ $report->reportStatus->status_name }}
-            </span>
+            <div>
+                @php
+                    $statusStr = strtolower($report->reportStatus->status_name);
+                    if ($statusStr === 'pending') $badgeClass = 'bg-orange-100 text-orange-700 border-orange-200';
+                    elseif ($statusStr === 'diproses') $badgeClass = 'bg-blue-100 text-blue-700 border-blue-200';
+                    elseif ($statusStr === 'disetujui' || $statusStr === 'selesai') $badgeClass = 'bg-green-100 text-green-700 border-green-200';
+                    elseif ($statusStr === 'perlu perbaikan' || $statusStr === 'ditolak') $badgeClass = 'bg-red-100 text-red-700 border-red-200';
+                    else $badgeClass = 'bg-gray-100 text-gray-700 border-gray-200';
+                @endphp
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold border {{ $badgeClass }}">
+                    Status: {{ $report->reportStatus->status_name }}
+                </span>
+            </div>
         </div>
         
-        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Data Almarhum</h3>
-                <dl class="space-y-3">
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">NIK</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $report->deceased->nik }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Nama Lengkap</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $report->deceased->name }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Jenis Kelamin</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $report->deceased->gender }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Tempat, Tanggal Lahir</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $report->deceased->birth_place }}, {{ \Carbon\Carbon::parse($report->deceased->birth_date)->format('d F Y') }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Tanggal Meninggal</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ \Carbon\Carbon::parse($report->deceased->death_date)->format('d F Y') }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Kabupaten/Kota</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $report->deceased->district->name }}</dd>
-                    </div>
-                </dl>
-            </div>
-            
-            <div>
-                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Lampiran Dokumen</h3>
-                <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
-                    @forelse($report->documents as $document)
-                        <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                            <div class="w-0 flex-1 flex items-center">
-                                <svg class="flex-shrink-0 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clip-rule="evenodd" />
-                                </svg>
-                                <span class="ml-2 flex-1 w-0 truncate">
-                                    {{ $document->documentType->name }}
-                                </span>
-                            </div>
-                            <div class="ml-4 flex-shrink-0">
-                                @if($document->is_dummy)
-                                    <span class="text-sm text-gray-400 italic">File demo tidak tersedia</span>
-                                @else
-                                    <a href="{{ route('documents.preview', $document->id) }}" target="_blank" class="font-medium text-primary hover:text-primary-dark">
-                                        Lihat
-                                    </a>
-                                @endif
-                            </div>
-                        </li>
-                    @empty
-                        <li class="pl-3 pr-4 py-3 text-sm text-gray-500">Belum ada lampiran dokumen pada laporan ini.</li>
-                    @endforelse
-                </ul>
+        <!-- 2. Data Almarhum -->
+        <div class="p-6 bg-gray-50/50">
+            <h3 class="text-sm font-bold text-primary uppercase tracking-wider mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                2. Data Almarhum
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div>
+                    <dt class="text-sm font-semibold text-gray-500">NIK</dt>
+                    <dd class="mt-1 text-base font-medium text-gray-900">{{ $report->deceased->nik }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-semibold text-gray-500">Nama Lengkap</dt>
+                    <dd class="mt-1 text-base font-medium text-gray-900">{{ $report->deceased->name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-semibold text-gray-500">Jenis Kelamin</dt>
+                    <dd class="mt-1 text-base font-medium text-gray-900">{{ $report->deceased->gender }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-semibold text-gray-500">Tempat, Tanggal Lahir</dt>
+                    <dd class="mt-1 text-base font-medium text-gray-900">{{ $report->deceased->birth_place }}, {{ \Carbon\Carbon::parse($report->deceased->birth_date)->format('d F Y') }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-semibold text-gray-500">Tanggal Meninggal</dt>
+                    <dd class="mt-1 text-base font-bold text-red-600">{{ \Carbon\Carbon::parse($report->deceased->death_date)->format('d F Y') }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-semibold text-gray-500">Kabupaten/Kota</dt>
+                    <dd class="mt-1 text-base font-medium text-gray-900">{{ $report->deceased->district->name }}</dd>
+                </div>
             </div>
         </div>
-    </div>
 
-    @if($report->reportVerifications->count() > 0)
-    <div class="bg-surface rounded border border-gray-200 overflow-hidden shadow-sm">
-        <div class="p-6 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-text">Riwayat Verifikasi</h2>
-        </div>
-        <div class="p-6">
-            <ul class="space-y-4">
-                @foreach($report->reportVerifications as $verification)
-                <li class="bg-gray-50 rounded-md p-4 border border-gray-100">
-                    <div class="flex justify-between items-start">
+        <!-- 3. Lampiran Dokumen -->
+        <div class="p-6 border-t border-gray-100">
+            <h3 class="text-sm font-bold text-primary uppercase tracking-wider mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                3. Lampiran Dokumen
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                @forelse($report->documents as $document)
+                    <div class="border border-gray-200 rounded-xl p-4 bg-white flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-start gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0 text-blue-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-900 line-clamp-2">{{ $document->documentType->name }}</h4>
+                                <p class="text-xs text-gray-500 mt-1">Dokumen Pendukung</p>
+                            </div>
+                        </div>
+                        
                         <div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                {{ $verification->decision === 'disetujui' ? 'bg-green-100 text-green-800' : 
-                                  ($verification->decision === 'ditolak' ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800') }}">
+                            @if($document->is_dummy)
+                                <span class="block w-full py-2 text-center text-xs font-semibold text-gray-400 bg-gray-50 rounded-lg border border-gray-100">
+                                    File demo tidak tersedia
+                                </span>
+                            @else
+                                <a href="{{ route('documents.preview', $document->id) }}" target="_blank" class="block w-full py-2 text-center text-sm font-semibold text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors">
+                                    Preview Dokumen
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full py-8 text-center text-gray-500 border-2 border-dashed border-gray-200 rounded-xl">
+                        Belum ada lampiran dokumen pada laporan ini.
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </x-ui.card>
+
+    <!-- 4. Riwayat Verifikasi -->
+    @if($report->reportVerifications->count() > 0)
+    <x-ui.card>
+        <div class="p-6 border-b border-gray-100">
+            <h2 class="text-lg font-bold text-gray-900">4. Riwayat Verifikasi</h2>
+        </div>
+        <div class="p-6 bg-gray-50/30">
+            <div class="space-y-4">
+                @foreach($report->reportVerifications as $verification)
+                <div class="bg-white rounded-xl p-4 md:p-5 border border-gray-200 shadow-sm">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            @php
+                                $dec = strtolower($verification->decision);
+                                $decBadge = 'bg-gray-100 text-gray-800';
+                                if ($dec === 'disetujui') $decBadge = 'bg-green-100 text-green-800 border-green-200';
+                                elseif ($dec === 'ditolak') $decBadge = 'bg-red-100 text-red-800 border-red-200';
+                                elseif ($dec === 'perlu_perbaikan' || $dec === 'perlu perbaikan') $decBadge = 'bg-orange-100 text-orange-800 border-orange-200';
+                            @endphp
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold border {{ $decBadge }}">
                                 {{ ucfirst(str_replace('_', ' ', $verification->decision)) }}
                             </span>
-                            <p class="mt-2 text-sm text-gray-700">{{ $verification->notes }}</p>
+                            <p class="mt-2 text-sm text-gray-700 font-medium">{{ $verification->notes }}</p>
                         </div>
-                        <div class="text-right text-xs text-gray-500">
-                            <p>{{ $verification->created_at->format('d M Y, H:i') }}</p>
-                            <p class="mt-1">Oleh: {{ $verification->user?->full_name ?? '-' }}</p>
+                        <div class="text-left md:text-right text-xs text-gray-500 flex flex-col gap-1">
+                            <span class="font-semibold text-gray-700">{{ $verification->user?->full_name ?? '-' }}</span>
+                            <span>{{ $verification->created_at->format('d M Y, H:i') }} WIB</span>
                         </div>
                     </div>
-                </li>
+                </div>
                 @endforeach
-            </ul>
+            </div>
         </div>
-    </div>
+    </x-ui.card>
     @endif
 
+    <!-- 5. Form Keputusan -->
     @if($report->reportStatus->status_name === 'Pending' || $report->reportStatus->status_name === 'Diproses')
-    <div class="bg-surface rounded border border-gray-200 overflow-hidden shadow-sm">
-        <div class="p-6 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-text">Form Verifikasi</h2>
+    <x-ui.card class="border-t-4 border-t-primary shadow-md">
+        <div class="p-6 border-b border-gray-100 bg-gray-50/50">
+            <h2 class="text-lg font-bold text-gray-900">5. Form Keputusan Verifikasi</h2>
+            <p class="text-sm text-gray-500 mt-1">Periksa dokumen dengan saksama sebelum mengambil keputusan.</p>
         </div>
         <div class="p-6">
-            <form action="{{ route('sub_operator.laporan.verifikasi', $report->id) }}" method="POST">
+            <form action="{{ route('sub_operator.laporan.verifikasi', $report->id) }}" method="POST" id="verificationForm">
                 @csrf
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-text mb-1">Keputusan</label>
-                        <select name="decision" class="w-full rounded border border-gray-300 p-2 text-sm">
-                            <option value="disetujui">Setujui</option>
-                            <option value="ditolak">Tolak</option>
-                            <option value="perlu_perbaikan">Perlu Perbaikan</option>
-                        </select>
+                        <label class="block text-sm font-bold text-gray-900 mb-2">Catatan Verifikasi (Wajib untuk Tolak / Perbaikan)</label>
+                        <textarea name="notes" rows="3" class="w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-3" placeholder="Tuliskan alasan penolakan, detail perbaikan, atau catatan persetujuan..."></textarea>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-text mb-1">Catatan</label>
-                        <textarea name="notes" rows="3" class="w-full rounded border border-gray-300 p-2 text-sm"></textarea>
+                    
+                    <div class="pt-4 border-t border-gray-100">
+                        <label class="block text-sm font-bold text-gray-900 mb-4">Tentukan Tindakan</label>
+                        
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <!-- Button Setujui (Green) -->
+                            <button type="submit" name="decision" value="disetujui" class="flex-1 inline-flex justify-center items-center px-4 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors shadow-sm" onclick="return confirm('Apakah Anda yakin menyetujui laporan ini? Data akan diteruskan/dianggap valid.');">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                Setujui Laporan
+                            </button>
+
+                            <!-- Button Perbaikan (Orange) -->
+                            <button type="submit" name="decision" value="perlu_perbaikan" class="flex-1 inline-flex justify-center items-center px-4 py-3 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors shadow-sm" onclick="return confirm('Apakah Anda yakin meminta perbaikan? Laporan akan dikembalikan ke Pelapor.');">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                Minta Perbaikan
+                            </button>
+
+                            <!-- Button Tolak (Red) -->
+                            <button type="submit" name="decision" value="ditolak" class="flex-1 inline-flex justify-center items-center px-4 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transition-colors shadow-sm" onclick="return confirm('PERINGATAN: Apakah Anda yakin MENOLAK laporan ini? Keputusan ini bersifat final.');">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                Tolak Laporan
+                            </button>
+                        </div>
                     </div>
-                    <button type="submit" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark text-sm font-medium">
-                        Simpan Verifikasi
-                    </button>
                 </div>
             </form>
         </div>
-    </div>
+    </x-ui.card>
     @endif
 </div>
 @endsection

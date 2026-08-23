@@ -28,6 +28,7 @@ class ReportPolicyTest extends TestCase
     protected $perluPerbaikanStatus;
 
     protected $pendingStatus;
+    protected $diprosesStatus;
 
     protected function setUp(): void
     {
@@ -41,6 +42,7 @@ class ReportPolicyTest extends TestCase
 
         $this->perluPerbaikanStatus = ReportStatus::firstOrCreate(['status_name' => 'Perlu Perbaikan']);
         $this->pendingStatus = ReportStatus::firstOrCreate(['status_name' => 'Pending']);
+        $this->diprosesStatus = ReportStatus::firstOrCreate(['status_name' => 'Diproses']);
     }
 
     protected function createUser($role, $districtId = null)
@@ -147,11 +149,11 @@ class ReportPolicyTest extends TestCase
         $this->assertTrue($this->policy->update($pelapor, $report));
     }
 
-    public function test_pelapor_cannot_update_own_report_if_status_not_perlu_perbaikan()
+    public function test_pelapor_cannot_update_own_report_if_status_not_pending_or_perlu_perbaikan()
     {
         $district = District::firstOrCreate(['name' => 'Palembang', 'code' => '1671']);
         $pelapor = $this->createUser($this->pelaporRole);
-        $report = $this->createReport($pelapor, $district, $this->pendingStatus);
+        $report = $this->createReport($pelapor, $district, $this->diprosesStatus);
 
         $this->assertFalse($this->policy->update($pelapor, $report));
     }

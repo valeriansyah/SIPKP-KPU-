@@ -44,7 +44,7 @@ class ReportPolicy
 
             $statusStr = Str::slug($report->reportStatus->status_name, '_');
 
-            return $statusStr === 'perlu_perbaikan';
+            return in_array($statusStr, ['pending', 'perlu_perbaikan']);
         }
 
         return false; // Operator and Sub Operator DENIED

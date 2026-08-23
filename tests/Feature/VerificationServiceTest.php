@@ -103,7 +103,7 @@ class VerificationServiceTest extends TestCase
 
         $this->actingAs($subOperator);
 
-        $response = $this->postJson("/reports/{$report->id}/verify", [
+        $response = $this->postJson("/sub-operator/laporan/{$report->id}/verifikasi", [
             'decision' => 'diproses',
             'notes' => 'Sedang diperiksa',
         ]);
@@ -137,7 +137,7 @@ class VerificationServiceTest extends TestCase
 
         $this->actingAs($operator);
 
-        $response = $this->postJson("/reports/{$report->id}/verify", [
+        $response = $this->postJson("/sub-operator/laporan/{$report->id}/verifikasi", [
             'decision' => 'disetujui',
             'notes' => 'OK',
         ]);
@@ -153,7 +153,7 @@ class VerificationServiceTest extends TestCase
 
         $this->actingAs($pelapor);
 
-        $response = $this->postJson("/reports/{$report->id}/verify", [
+        $response = $this->postJson("/sub-operator/laporan/{$report->id}/verifikasi", [
             'decision' => 'disetujui',
             'notes' => 'OK',
         ]);
@@ -170,7 +170,7 @@ class VerificationServiceTest extends TestCase
 
         $this->actingAs($subOperator);
 
-        $response = $this->postJson("/reports/{$report->id}/verify", [
+        $response = $this->postJson("/sub-operator/laporan/{$report->id}/verifikasi", [
             'decision' => 'disetujui',
             'notes' => 'OK',
         ]);
@@ -184,7 +184,7 @@ class VerificationServiceTest extends TestCase
         $pelapor = $this->createUser($this->pelaporRole);
         $report = $this->createReport($pelapor, $this->districtPalembang, $this->pendingStatus);
 
-        $response = $this->postJson("/reports/{$report->id}/verify", [
+        $response = $this->postJson("/sub-operator/laporan/{$report->id}/verifikasi", [
             'decision' => 'disetujui',
             'notes' => 'OK',
         ]);
@@ -199,7 +199,7 @@ class VerificationServiceTest extends TestCase
         $subOperator = $this->createUser($this->subOperatorRole, $this->districtPalembang);
         $this->actingAs($subOperator);
 
-        $response = $this->postJson('/reports/9999/verify', [
+        $response = $this->postJson('/sub-operator/laporan/9999/verifikasi', [
             'decision' => 'disetujui',
         ]);
 
@@ -215,7 +215,7 @@ class VerificationServiceTest extends TestCase
 
         $this->actingAs($subOperator);
 
-        $response = $this->postJson("/reports/{$report->id}/verify", [
+        $response = $this->postJson("/sub-operator/laporan/{$report->id}/verifikasi", [
             'decision' => 'dihapus', // Not in whitelist
         ]);
 
@@ -252,7 +252,7 @@ class VerificationServiceTest extends TestCase
 
         $this->actingAs($subOperator);
 
-        $response1 = $this->postJson("/reports/{$reportDitolak->id}/verify", [
+        $response1 = $this->postJson("/sub-operator/laporan/{$reportDitolak->id}/verifikasi", [
             'decision' => 'perlu_perbaikan',
         ]);
 
@@ -261,7 +261,7 @@ class VerificationServiceTest extends TestCase
 
         $reportDisetujui = $this->createReport($pelapor, $this->districtPalembang, $this->disetujuiStatus);
 
-        $response2 = $this->postJson("/reports/{$reportDisetujui->id}/verify", [
+        $response2 = $this->postJson("/sub-operator/laporan/{$reportDisetujui->id}/verifikasi", [
             'decision' => 'diproses',
         ]);
 

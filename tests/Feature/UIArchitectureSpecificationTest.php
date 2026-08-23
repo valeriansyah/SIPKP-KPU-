@@ -78,7 +78,7 @@ class UIArchitectureSpecificationTest extends TestCase
 
         $this->actingAs($operator);
 
-        $response = $this->postJson("/reports/{$report->id}/verify", [
+        $response = $this->postJson("/sub-operator/laporan/{$report->id}/verifikasi", [
             'decision' => 'disetujui',
         ]);
 
@@ -136,7 +136,7 @@ class UIArchitectureSpecificationTest extends TestCase
         $this->actingAs($subOperator);
 
         // Sub Operator (District A) attempting to verify Report from District B
-        $response = $this->postJson("/reports/{$report->id}/verify", [
+        $response = $this->postJson("/sub-operator/laporan/{$report->id}/verifikasi", [
             'decision' => 'disetujui',
         ]);
 
@@ -176,7 +176,7 @@ class UIArchitectureSpecificationTest extends TestCase
         $this->actingAs($pelapor1);
 
         // Pelapor 1 trying to update Report owned by Pelapor 2
-        $response = $this->putJson("/reports/{$report->id}");
+        $response = $this->putJson("/pelapor/laporan/{$report->id}");
 
         $response->assertStatus(403);
     }

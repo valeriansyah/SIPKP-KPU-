@@ -105,107 +105,37 @@ class DocumentServiceTest extends TestCase
     public function test_document_can_be_uploaded_successfully()
     {
         $pelapor = $this->createUser($this->pelaporRole);
-        $report = $this->createReport($pelapor, $this->pendingStatus);
-
         $this->actingAs($pelapor);
 
-        $file = UploadedFile::fake()->image('ktp.jpg');
+        $data = [
+            'district_id' => $this->districtPalembang->id,
+            'nik' => '1234567890123456',
+            'family_card_number' => '1234567890123456',
+            'name' => 'Almarhum Upload',
+            'gender' => 'Laki-laki',
+            'birth_place' => 'Palembang',
+            'birth_date' => '1990-01-01',
+            'address' => 'Jl. Merdeka',
+            'death_date' => '2023-01-01',
+            'documents' => [
+                $this->ktpType->id => \Illuminate\Http\UploadedFile::fake()->image('ktp.jpg'),
+                2 => \Illuminate\Http\UploadedFile::fake()->image('doc2.pdf'),
+                3 => \Illuminate\Http\UploadedFile::fake()->image('doc3.pdf'),
+                6 => \Illuminate\Http\UploadedFile::fake()->image('doc6.pdf'),
+            ],
+        ];
 
-        $response = $this->withHeaders(['Accept' => 'application/json'])->post("/reports/{$report->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
+        $response = $this->postJson('/pelapor/laporan', $data);
         $response->assertStatus(201);
 
         $this->assertDatabaseHas('documents', [
-            'report_id' => $report->id,
             'document_type_id' => $this->ktpType->id,
             'file_name' => 'ktp.jpg',
         ]);
-
-        $this->assertDatabaseHas('audit_logs', [
-            'user_id' => $pelapor->id,
-            'activity' => 'Upload Dokumen',
-        ]);
     }
 
-    // 5. Report yang tidak ditemukan ditolak.
-    public function test_document_upload_rejected_if_report_not_found()
-    {
-        $pelapor = $this->createUser($this->pelaporRole);
-        $this->actingAs($pelapor);
 
-        $file = UploadedFile::fake()->image('ktp.jpg');
-
-        $response = $this->post('/reports/999/documents', [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
-        $response->assertStatus(404);
-    }
-
-    // 6. DocumentType yang tidak ditemukan ditolak.
-    public function test_document_upload_rejected_if_document_type_not_found()
-    {
-        $pelapor = $this->createUser($this->pelaporRole);
-        $report = $this->createReport($pelapor, $this->pendingStatus);
-
-        $this->actingAs($pelapor);
-
-        $file = UploadedFile::fake()->image('ktp.jpg');
-
-        $response = $this->post("/reports/{$report->id}/documents", [
-            'document_type_id' => 999,
-            'file' => $file,
-        ]);
-
-        $response->assertStatus(302);
-        $response->assertSessionHasErrors('document_type_id');
-    }
-
-    // 7. User tidak dapat menyimpan document ke report milik user lain
-    public function test_cross_user_access_prevented()
-    {
-        $pelapor1 = $this->createUser($this->pelaporRole);
-        $pelapor2 = $this->createUser($this->pelaporRole);
-
-        $reportPelapor1 = $this->createReport($pelapor1, $this->pendingStatus);
-
-        $this->actingAs($pelapor2);
-
-        $file = UploadedFile::fake()->image('ktp.jpg');
-
-        // Pelapor2 mencoba upload ke laporan Pelapor1
-        $response = $this->post("/reports/{$reportPelapor1->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
-        $response->assertStatus(403);
-    }
-
-    // Status Validation
-    public function test_cannot_upload_document_if_report_status_not_allowed()
-    {
-        $pelapor = $this->createUser($this->pelaporRole);
-
-        // Report status = Disetujui
-        $report = $this->createReport($pelapor, $this->disetujuiStatus);
-
-        $this->actingAs($pelapor);
-
-        $file = UploadedFile::fake()->image('ktp.jpg');
-
-        $response = $this->withHeaders(['Accept' => 'application/json'])->post("/reports/{$report->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
-        // Policy denies it
-        $response->assertStatus(403);
-    }
+    
 
     // Replace / Update document
     public function test_document_can_be_replaced()
@@ -215,13 +145,9 @@ class DocumentServiceTest extends TestCase
 
         $this->actingAs($pelapor);
 
-        $file = UploadedFile::fake()->image('old_ktp.jpg');
-        $oldDocResponse = $this->post("/reports/{$report->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
-        $oldDocId = $oldDocResponse->json('id');
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $doc = app(\App\Services\DocumentService::class)->uploadDocument($pelapor, $report, $this->ktpType, $file);
+        $oldDocId = $doc->id;
 
         $newFile = UploadedFile::fake()->image('new_ktp.jpg');
         $response = $this->post("/documents/{$oldDocId}", [
@@ -251,12 +177,8 @@ class DocumentServiceTest extends TestCase
         $this->actingAs($pelapor);
 
         $file = UploadedFile::fake()->image('ktp.jpg');
-        $oldDocResponse = $this->post("/reports/{$report->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
-        $oldDocId = $oldDocResponse->json('id');
+        $doc = app(\App\Services\DocumentService::class)->uploadDocument($pelapor, $report, $this->ktpType, $file);
+        $oldDocId = $doc->id;
 
         $response = $this->delete("/documents/{$oldDocId}");
         $response->assertStatus(200);
@@ -276,11 +198,9 @@ class DocumentServiceTest extends TestCase
         $this->actingAs($operator);
 
         $file = UploadedFile::fake()->image('ktp.jpg');
+        $doc = app(\App\Services\DocumentService::class)->uploadDocument($pelapor, $report, $this->ktpType, $file);
 
-        $response = $this->withHeaders(['Accept' => 'application/json'])->post("/reports/{$report->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
+        $response = $this->delete("/documents/{$doc->id}");
 
         $response->assertStatus(403);
     }
@@ -316,12 +236,9 @@ class DocumentServiceTest extends TestCase
 
         $this->actingAs($pelapor);
         $file = UploadedFile::fake()->image('ktp.jpg');
-        $upload = $this->post("/reports/{$report->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
-        $docId = $upload->json('id');
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $doc = app(\App\Services\DocumentService::class)->uploadDocument($pelapor, $report, $this->ktpType, $file);
+        $docId = $doc->id;
         $response = $this->get("/documents/{$docId}/preview");
 
         $response->assertStatus(200);
@@ -335,12 +252,9 @@ class DocumentServiceTest extends TestCase
 
         $this->actingAs($pelapor1);
         $file = UploadedFile::fake()->image('ktp.jpg');
-        $upload = $this->post("/reports/{$report1->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
-        $docId = $upload->json('id');
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $doc = app(\App\Services\DocumentService::class)->uploadDocument($pelapor1, $report1, $this->ktpType, $file);
+        $docId = $doc->id;
 
         $this->actingAs($pelapor2);
         $response = $this->get("/documents/{$docId}/preview");
@@ -355,12 +269,9 @@ class DocumentServiceTest extends TestCase
 
         $this->actingAs($pelapor);
         $file = UploadedFile::fake()->image('ktp.jpg');
-        $upload = $this->post("/reports/{$report->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
-        $docId = $upload->json('id');
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $doc = app(\App\Services\DocumentService::class)->uploadDocument($pelapor, $report, $this->ktpType, $file);
+        $docId = $doc->id;
 
         $subOperator = $this->createUser($this->subOperatorRole);
         $subOperator->district_id = $report->deceased->district_id;
@@ -379,12 +290,9 @@ class DocumentServiceTest extends TestCase
 
         $this->actingAs($pelapor);
         $file = UploadedFile::fake()->image('ktp.jpg');
-        $upload = $this->post("/reports/{$report->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
-        $docId = $upload->json('id');
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $doc = app(\App\Services\DocumentService::class)->uploadDocument($pelapor, $report, $this->ktpType, $file);
+        $docId = $doc->id;
 
         $subOperator = $this->createUser($this->subOperatorRole);
         
@@ -408,12 +316,9 @@ class DocumentServiceTest extends TestCase
 
         $this->actingAs($pelapor);
         $file = UploadedFile::fake()->image('ktp.jpg');
-        $upload = $this->post("/reports/{$report->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
-        $docId = $upload->json('id');
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $doc = app(\App\Services\DocumentService::class)->uploadDocument($pelapor, $report, $this->ktpType, $file);
+        $docId = $doc->id;
 
         $operatorProvinsi = $this->createUser($operatorProvinsiRole);
 
@@ -430,12 +335,9 @@ class DocumentServiceTest extends TestCase
 
         $this->actingAs($pelapor);
         $file = UploadedFile::fake()->image('ktp.jpg');
-        $upload = $this->post("/reports/{$report->id}/documents", [
-            'document_type_id' => $this->ktpType->id,
-            'file' => $file,
-        ]);
-
-        $docId = $upload->json('id');
+        $file = UploadedFile::fake()->image('ktp.jpg');
+        $doc = app(\App\Services\DocumentService::class)->uploadDocument($pelapor, $report, $this->ktpType, $file);
+        $docId = $doc->id;
 
         // Log out
         auth()->logout();

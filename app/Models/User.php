@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
     'full_name',
@@ -60,6 +61,15 @@ class User extends Authenticatable
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        if ($this->profile_picture) {
+            return Storage::disk('public')->url($this->profile_picture);
+        }
+
+        return null;
     }
 
     protected function casts(): array

@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="application-name" content="SIPKP">
+    <meta name="description" content="Sistem Informasi Pelaporan Kematian Pemilih KPU Provinsi Sumatera Selatan">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'SIPKP KPU Sumsel') }}</title>
+    <title>{{ $title ?? config('app.name', 'SIPKP') }}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/kpu-logo.png') }}">
+    <link rel="shortcut icon" href="{{ asset('images/kpu-logo.png') }}">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,34 +50,49 @@
         </script>
     @endif
 </head>
-<body class="bg-background text-text font-sans antialiased flex h-screen overflow-hidden">
+<body class="bg-background text-text font-sans antialiased flex h-screen overflow-x-hidden overflow-y-hidden">
 
     <!-- Sidebar Component -->
     <x-layout.sidebar />
 
-    <div class="flex flex-col flex-1 w-full">
+    <div class="flex flex-col flex-1 w-full lg:ml-64">
         <!-- Topbar Component -->
         <x-layout.topbar />
 
         @auth
             @if(auth()->user()->role->role_name === 'Pelapor')
-                <div class="bg-blue-50 border-b border-blue-200 px-4 py-2 text-center text-sm text-blue-700 font-medium shadow-sm">
-                    Portal Layanan Masyarakat — KPU Provinsi Sumatera Selatan
+                <div class="bg-blue-50 border-b border-blue-200 px-4 py-2.5 text-center shadow-sm shrink-0 flex flex-col justify-center items-center">
+                    <div class="font-bold text-blue-800">
+                        Portal Layanan Masyarakat
+                    </div>
+                    <div class="text-[13px] text-blue-600 font-medium mt-0.5">
+                        KPU Provinsi Sumatera Selatan
+                    </div>
                 </div>
             @elseif(auth()->user()->role->role_name === 'Sub Operator')
-                <div class="bg-orange-50 border-b border-orange-200 px-4 py-2 text-center text-sm text-orange-700 font-medium shadow-sm">
-                    Panel Verifikasi Wilayah — {{ auth()->user()->district->name ?? 'Sub-Operator' }}
+                <div class="bg-orange-50 border-b border-orange-200 px-4 py-2.5 text-center shadow-sm shrink-0 flex flex-col justify-center items-center">
+                    <div class="font-bold text-orange-800">
+                        Panel Verifikasi Wilayah
+                    </div>
+                    <div class="text-[13px] text-orange-600 font-medium mt-0.5">
+                        {{ auth()->user()->district->name ?? 'Sub-Operator' }}
+                    </div>
                 </div>
             @elseif(auth()->user()->role->role_name === 'Operator Provinsi')
-                <div class="bg-red-50 border-b border-red-200 px-4 py-2 text-center text-sm text-red-700 font-medium shadow-sm">
-                    Dasbor Monitoring Pusat — Operator Provinsi
+                <div class="bg-red-50 border-b border-red-200 px-4 py-2.5 text-center shadow-sm shrink-0 flex flex-col justify-center items-center">
+                    <div class="font-bold text-red-800">
+                        Dasbor Monitoring Pusat
+                    </div>
+                    <div class="text-[13px] text-red-600 font-medium mt-0.5">
+                        Operator Provinsi
+                    </div>
                 </div>
             @endif
         @endauth
 
         <!-- Main Content Area -->
-        <main class="flex-1 overflow-y-auto bg-background">
-            <div class="mx-auto max-w-[1440px] w-full px-4 md:px-4 lg:px-6 py-6 lg:py-8">
+        <main class="flex-1 overflow-y-auto bg-background w-full">
+            <div class="mx-auto max-w-[1440px] w-full px-4 md:px-6 py-6 lg:py-8">
                 <!-- Toast / Alert placeholder -->
                 <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
                 

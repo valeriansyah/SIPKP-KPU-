@@ -51,7 +51,7 @@ class BackendFrontendContractTest extends TestCase
     public function test_protected_routes_are_not_accessible_to_guests()
     {
         // Without authentication
-        $response = $this->get('/reports');
+        $response = $this->get('/pelapor/laporan');
         $response->assertStatus(302);
         $response->assertRedirect('/login');
     }
@@ -76,10 +76,10 @@ class BackendFrontendContractTest extends TestCase
     public function test_report_endpoints_exist_and_protected()
     {
         $endpoints = [
-            'reports.index',
-            'reports.store',
-            'reports.show',
-            'reports.update',
+            'pelapor.laporan.index',
+            'pelapor.laporan.store',
+            'pelapor.laporan.show',
+            'pelapor.laporan.update',
         ];
 
         foreach ($endpoints as $endpoint) {

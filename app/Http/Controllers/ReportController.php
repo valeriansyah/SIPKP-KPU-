@@ -46,8 +46,9 @@ class ReportController extends Controller
                 'ditolak' => $reports->where('reportStatus.status_name', 'Ditolak')->count(),
                 'perbaikan' => $reports->where('reportStatus.status_name', 'Perlu Perbaikan')->count(),
             ];
+            $districts = District::orderBy('name')->withCount('reports')->get();
 
-            return view('operator.monitoring', compact('reports', 'stats'));
+            return view('operator.monitoring', compact('reports', 'stats', 'districts'));
         }
 
         abort(403);
@@ -105,8 +106,9 @@ class ReportController extends Controller
     public function edit(Report $report)
     {
         $this->authorize('update', $report);
+        $districts = \App\Models\District::orderBy('name')->get();
 
-        return view('pelapor.laporan.edit', compact('report'));
+        return view('pelapor.laporan.edit', compact('report', 'districts'));
     }
 
     public function update(UpdateReportRequest $request, Report $report)

@@ -47,6 +47,8 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('operator.dashboard', compact('metrics', 'recentReports', 'districtStatistics', 'activities'));
+        $districts = \App\Models\District::orderBy('name')->withCount('reports')->get();
+
+        return view('operator.dashboard', compact('metrics', 'recentReports', 'districtStatistics', 'activities', 'districts'));
     }
 }

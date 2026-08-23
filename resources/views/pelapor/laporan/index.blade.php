@@ -53,27 +53,40 @@
                         @foreach($reports as $report)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $report->report_number }}</div>
-                                    <div class="text-sm text-gray-500">{{ $report->created_at->format('d M Y H:i') }}</div>
+                                    <div class="text-sm font-extrabold text-gray-900 tracking-wide">{{ $report->report_number }}</div>
+                                    <div class="text-xs text-gray-500 mt-1 flex items-center">
+                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        {{ $report->created_at->format('d M Y, H:i') }}
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $report->deceased->name }}</div>
-                                    <div class="text-sm text-gray-500">NIK: {{ $report->deceased->nik }}</div>
+                                    <div class="text-sm font-bold text-gray-900">{{ $report->deceased->name }}</div>
+                                    <div class="text-xs text-gray-500 mt-1 bg-gray-100 inline-block px-2 py-0.5 rounded border border-gray-200">NIK: {{ $report->deceased->nik }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
-                                        $statusClass = 'bg-gray-100 text-gray-800';
-                                        if($report->reportStatus->status_name === 'Pending') $statusClass = 'bg-yellow-100 text-yellow-800';
-                                        if($report->reportStatus->status_name === 'Disetujui') $statusClass = 'bg-green-100 text-green-800';
-                                        if($report->reportStatus->status_name === 'Ditolak') $statusClass = 'bg-red-100 text-red-800';
-                                        if($report->reportStatus->status_name === 'Perlu Perbaikan') $statusClass = 'bg-orange-100 text-orange-800';
+                                        $statusName = $report->reportStatus->status_name ?? '';
+                                        $statusClass = 'bg-gray-100 text-gray-800 border-gray-200';
+                                        
+                                        if(in_array($statusName, ['Pending', 'Diajukan', 'Perlu Perbaikan'])) {
+                                            $statusClass = 'bg-orange-50 text-orange-700 border-orange-200';
+                                        } elseif(in_array($statusName, ['Diproses', 'Diverifikasi'])) {
+                                            $statusClass = 'bg-blue-50 text-blue-700 border-blue-200';
+                                        } elseif($statusName === 'Disetujui') {
+                                            $statusClass = 'bg-green-50 text-green-700 border-green-200';
+                                        } elseif($statusName === 'Ditolak') {
+                                            $statusClass = 'bg-red-50 text-red-700 border-red-200';
+                                        }
                                     @endphp
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClass }}">
-                                        {{ $report->reportStatus->status_name }}
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full border {{ $statusClass }}">
+                                        {{ $statusName }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="{{ route('pelapor.laporan.show', $report->id) }}" class="text-primary hover:text-primary-dark">Lihat Detail</a>
+                                    <a href="{{ route('pelapor.laporan.show', $report->id) }}" class="inline-flex items-center px-4 py-1.5 border border-gray-300 shadow-sm text-xs font-bold rounded-full text-gray-700 bg-white hover:bg-gray-50 hover:text-red-700 hover:border-red-300 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                        Lihat Detail
+                                        <svg class="ml-1.5 w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach

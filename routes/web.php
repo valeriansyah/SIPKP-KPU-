@@ -58,15 +58,11 @@ Route::middleware(['auth', 'role:operator_provinsi'])->prefix('operator')->name(
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::apiResource('reports', ReportController::class)->except(['destroy']);
 
-    // Document routes
-    Route::post('reports/{report}/documents', [DocumentController::class, 'store']);
     Route::post('documents/{document}', [DocumentController::class, 'update']); // Use POST because file upload in PHP sometimes struggles with PUT
     Route::delete('documents/{document}', [DocumentController::class, 'destroy']);
     Route::get('documents/{document}/preview', [DocumentController::class, 'show'])->name('documents.preview');
     Route::get('documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
 
-    // Verification routes
-    Route::post('reports/{report}/verify', [VerificationController::class, 'store']);
+
 });

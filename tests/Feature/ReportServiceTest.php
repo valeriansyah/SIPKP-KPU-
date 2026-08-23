@@ -89,7 +89,7 @@ class ReportServiceTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson('/reports', $data);
+        $response = $this->postJson('/pelapor/laporan', $data);
 
         $response->assertStatus(201);
         $response->assertJsonStructure([
@@ -132,7 +132,7 @@ class ReportServiceTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson('/reports', $data);
+        $response = $this->postJson('/pelapor/laporan', $data);
         $reportNumber = $response->json('report_number');
 
         $today = now()->format('Ymd');
@@ -173,7 +173,7 @@ class ReportServiceTest extends TestCase
         ]);
 
         $this->actingAs($pelapor1);
-        $response = $this->getJson('/reports');
+        $response = $this->getJson('/pelapor/laporan');
 
         $response->assertStatus(200);
         $response->assertJsonCount(1);
@@ -211,7 +211,7 @@ class ReportServiceTest extends TestCase
         ]);
 
         $this->actingAs($subOpPlg);
-        $response = $this->getJson('/reports');
+        $response = $this->getJson('/sub-operator/antrean');
 
         $response->assertStatus(200);
         $response->assertJsonCount(1);
@@ -244,7 +244,7 @@ class ReportServiceTest extends TestCase
             'name' => 'Almarhum Benar',
         ];
 
-        $response = $this->putJson('/reports/'.$report->id, $updateData);
+        $response = $this->putJson('/pelapor/laporan/'.$report->id, $updateData);
 
         $response->assertStatus(200);
 
@@ -276,7 +276,9 @@ class ReportServiceTest extends TestCase
             'death_date' => '2023-01-01',
         ]);
 
-        // Status is currently Pending
+        $disetujuiStatus = \App\Models\ReportStatus::firstOrCreate(['status_name' => 'Disetujui']);
+        $report->update(['report_status_id' => $disetujuiStatus->id]);
+        $report->refresh();
 
         $this->actingAs($pelapor);
 
@@ -284,7 +286,7 @@ class ReportServiceTest extends TestCase
             'name' => 'Almarhum Update',
         ];
 
-        $response = $this->putJson('/reports/'.$report->id, $updateData);
+        $response = $this->putJson('/pelapor/laporan/'.$report->id, $updateData);
 
         // Policy denies it
         $response->assertStatus(403);
@@ -314,7 +316,7 @@ class ReportServiceTest extends TestCase
             'name' => 'Almarhum Update',
         ];
 
-        $response = $this->putJson('/reports/'.$report->id, $updateData);
+        $response = $this->putJson('/pelapor/laporan/'.$report->id, $updateData);
         $response->assertStatus(403);
     }
 }

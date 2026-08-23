@@ -4,7 +4,7 @@
 
 @section('content')
 <!-- PROTOTYPE DATA — REPLACE WITH BACKEND METRICS -->
-<div class="space-y-6 md:space-y-8">
+<div class="space-y-6 md:space-y-8 relative z-10">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Metrics Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
         <x-dashboard.stat-card title="Total Laporan" :value="$metrics['total'] ?? 0" status="total" />
         <x-dashboard.stat-card title="Pending" :value="$metrics['pending'] ?? 0" status="pending" />
         <x-dashboard.stat-card title="Diproses" :value="$metrics['diproses'] ?? 0" status="diproses" />
@@ -149,8 +149,11 @@
                         <div>
                             <select class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary bg-white">
                                 <option value="">Semua Wilayah</option>
-                                <option value="palembang">Kota Palembang</option>
-                                <option value="lubuklinggau">Kota Lubuklinggau</option>
+                                @foreach($districts as $district)
+                                    <option value="{{ $district->id }}">
+                                        {{ $district->name }} ({{ $district->reports_count }})
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
                         <div>

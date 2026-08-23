@@ -2,14 +2,43 @@
 
 @section('content')
 <div class="space-y-6 max-w-4xl mx-auto">
-    <div class="flex items-center justify-between">
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
-            <h1 class="text-2xl font-semibold text-text">Buat Laporan Kematian Pemilih</h1>
-            <p class="text-sm text-muted mt-1">Lengkapi data berikut dengan benar untuk mengajukan laporan kematian pemilih.</p>
+            <span class="text-xs font-bold tracking-wider text-primary uppercase mb-1 block">Portal Layanan Masyarakat</span>
+            <h1 class="text-2xl font-bold text-text">Buat Laporan Kematian Pemilih</h1>
+            <p class="text-sm text-muted mt-1">Lengkapi data berikut dengan benar untuk mengajukan laporan kematian pemilih ke KPU.</p>
         </div>
-        <a href="{{ route('pelapor.laporan.index') }}" class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
-            Batal
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('pelapor.laporan.index') }}" class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
+                Kembali
+            </a>
+        </div>
+    </div>
+
+    <!-- PROGRESS INDICATOR -->
+    <div class="hidden sm:block py-4">
+        <ul class="relative flex w-full justify-between items-center">
+            <li class="flex items-center text-primary font-medium w-full">
+                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold shrink-0">1</div>
+                <div class="ml-3 text-sm">Data Pelapor</div>
+                <div class="flex-auto border-t-2 border-primary mx-4"></div>
+            </li>
+            <li class="flex items-center text-primary font-medium w-full">
+                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold shrink-0">2</div>
+                <div class="ml-3 text-sm">Data Almarhum</div>
+                <div class="flex-auto border-t-2 border-primary mx-4"></div>
+            </li>
+            <li class="flex items-center text-primary font-medium w-full">
+                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold shrink-0">3</div>
+                <div class="ml-3 text-sm">Dokumen</div>
+                <div class="flex-auto border-t-2 border-gray-200 mx-4"></div>
+            </li>
+            <li class="flex items-center text-gray-400 font-medium">
+                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-500 font-bold shrink-0">4</div>
+                <div class="ml-3 text-sm">Review</div>
+            </li>
+        </ul>
     </div>
 
     @if ($errors->any())
@@ -23,32 +52,42 @@
         @csrf
 
         <!-- SECTION 1: Data Pelapor -->
-        <x-ui.card>
-            <div class="p-6 border-b border-gray-100 bg-gray-50/50">
-                <h2 class="text-lg font-semibold text-primary">01 DATA PELAPOR</h2>
-                <p class="text-sm text-muted mt-1">Identitas pelapor diambil dari akun yang sedang digunakan.</p>
+        <x-ui.card class="border border-red-100 shadow-sm overflow-hidden">
+            <div class="p-6 md:p-8 border-b border-red-100 bg-red-50 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
+                    1
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-red-900 uppercase tracking-wide">Data Pelapor</h2>
+                    <p class="text-sm text-red-700/80 mt-1">Identitas pelapor diambil otomatis dari akun yang sedang Anda gunakan.</p>
+                </div>
             </div>
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50/30">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="reporter_name">Nama</label>
-                    <input type="text" id="reporter_name" value="{{ Auth::user()->full_name }}" class="w-full border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-500 cursor-not-allowed focus:ring-0 focus:border-gray-300" readonly disabled aria-disabled="true">
+                    <input type="text" id="reporter_name" value="{{ Auth::user()->full_name }}" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-md shadow-sm focus:ring-0 focus:border-gray-200" readonly aria-disabled="true">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="reporter_email">Email</label>
-                    <input type="email" id="reporter_email" value="{{ Auth::user()->email }}" class="w-full border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-500 cursor-not-allowed focus:ring-0 focus:border-gray-300" readonly disabled aria-disabled="true">
+                    <input type="email" id="reporter_email" value="{{ Auth::user()->email }}" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-md shadow-sm focus:ring-0 focus:border-gray-200" readonly aria-disabled="true">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="reporter_phone">Nomor HP</label>
-                    <input type="text" id="reporter_phone" value="{{ Auth::user()->phone_number }}" class="w-full border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-500 cursor-not-allowed focus:ring-0 focus:border-gray-300" readonly disabled aria-disabled="true">
+                    <input type="text" id="reporter_phone" value="{{ Auth::user()->phone_number }}" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-md shadow-sm focus:ring-0 focus:border-gray-200" readonly aria-disabled="true">
                 </div>
             </div>
         </x-ui.card>
 
         <!-- SECTION 2: Data Almarhum -->
-        <x-ui.card>
-            <div class="p-6 border-b border-gray-100">
-                <h2 class="text-lg font-semibold text-primary">02 DATA ALMARHUM</h2>
-                <p class="text-sm text-muted mt-1">Masukkan data identitas almarhum dengan teliti dan sesuai dokumen.</p>
+        <x-ui.card class="border border-orange-100 shadow-sm overflow-hidden">
+            <div class="p-6 md:p-8 border-b border-orange-100 bg-orange-50 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
+                    2
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-orange-900 uppercase tracking-wide">Data Almarhum</h2>
+                    <p class="text-sm text-orange-700/80 mt-1">Masukkan identitas almarhum dengan teliti dan sesuai dengan dokumen resmi.</p>
+                </div>
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -143,10 +182,15 @@
         </x-ui.card>
 
         <!-- SECTION 3: Dokumen Pendukung -->
-        <x-ui.card>
-            <div class="p-6 border-b border-gray-100">
-                <h2 class="text-lg font-semibold text-primary">03 DOKUMEN PENDUKUNG</h2>
-                <p class="text-sm text-muted mt-1">Unggah dokumen yang dipersyaratkan. Pastikan file dapat dibaca dengan jelas.</p>
+        <x-ui.card class="border border-blue-100 shadow-sm overflow-hidden">
+            <div class="p-6 md:p-8 border-b border-blue-100 bg-blue-50 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
+                    3
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-blue-900 uppercase tracking-wide">Dokumen Pendukung</h2>
+                    <p class="text-sm text-blue-700/80 mt-1">Unggah dokumen yang dipersyaratkan. Pastikan file dapat dibaca dengan jelas.</p>
+                </div>
             </div>
             <div class="p-6 space-y-8">
                 @error('documents')
@@ -186,23 +230,40 @@
         </x-ui.card>
 
         <!-- SECTION 4: Konfirmasi & Submit -->
-        <x-ui.card>
-            <div class="p-6 bg-gray-50 rounded-b-xl flex flex-col sm:flex-row items-center justify-between gap-6">
-                <div class="flex items-start">
-                    <div class="flex items-center h-5">
-                        <input id="agreement" name="agreement" type="checkbox" required class="w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-offset-gray-50" {{ old('agreement') ? 'checked' : '' }} aria-required="true">
+        <x-ui.card class="border border-gray-200 shadow-sm overflow-hidden">
+            <div class="p-6 md:p-8 border-b border-gray-200 bg-gray-50 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
+                    4
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 uppercase tracking-wide">Review & Kirim</h2>
+                    <p class="text-sm text-gray-600 mt-1">Periksa kembali data Anda sebelum mengirimkan laporan.</p>
+                </div>
+            </div>
+            <div class="p-6 bg-gray-50 flex flex-col gap-6">
+                <div class="flex items-start bg-white p-4 rounded-lg border border-gray-200">
+                    <div class="flex items-center h-5 mt-0.5">
+                        <input id="agreement" name="agreement" type="checkbox" required class="w-5 h-5 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-offset-white" {{ old('agreement') ? 'checked' : '' }} aria-required="true">
                     </div>
-                    <label for="agreement" class="ml-2 text-sm text-gray-600 cursor-pointer">
-                        Saya menyatakan bahwa data dan dokumen yang saya unggah adalah <span class="font-semibold text-gray-900">benar dan sah secara hukum</span>.
+                    <label for="agreement" class="ml-3 text-sm text-gray-600 cursor-pointer select-none">
+                        Dengan mencentang kotak ini, saya menyatakan bahwa data dan dokumen yang saya unggah adalah 
+                        <strong class="font-semibold text-gray-900">benar dan sah secara hukum</strong>. 
+                        Saya bersedia mempertanggungjawabkan keabsahan dokumen ini di kemudian hari.
                     </label>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    <a href="{{ route('pelapor.laporan.index') }}" class="w-full sm:w-auto px-6 py-2.5 bg-white text-gray-700 border border-gray-300 text-center font-medium rounded hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 whitespace-nowrap">
-                        Batal
+                
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
+                    <a href="{{ route('pelapor.laporan.index') }}" class="w-full sm:w-auto px-6 py-2.5 text-gray-600 font-medium hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 text-center">
+                        Kembali
                     </a>
-                    <button type="submit" id="submit-btn" class="w-full sm:w-auto px-6 py-2.5 bg-primary text-white font-medium rounded hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary whitespace-nowrap shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                        Simpan Laporan
-                    </button>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        <button type="button" class="w-full sm:w-auto px-6 py-2.5 bg-white text-gray-700 border border-gray-300 font-medium rounded hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 shadow-sm">
+                            Simpan Draft
+                        </button>
+                        <button type="submit" id="submit-btn" class="w-full sm:w-auto px-8 py-2.5 bg-primary text-white font-medium rounded hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                            Lanjutkan (Kirim Laporan)
+                        </button>
+                    </div>
                 </div>
             </div>
         </x-ui.card>

@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class Phase7HPelaporProfileTest extends TestCase
@@ -66,5 +68,63 @@ class Phase7HPelaporProfileTest extends TestCase
             'id' => $this->user->id,
             'phone_number' => '081234567890',
         ]);
+    }
+
+    public function test_pelapor_can_upload_avatar()
+    {
+        Storage::fake('public');
+
+        $file = UploadedFile::fake()->image('avatar.jpg');
+
+        $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
+            'full_name' => 'John Doe',
+            'phone_number' => '081234567890',
+            'profile_picture' => $file,
+        ]);
+
+        $response->assertRedirect(route('pelapor.profile.edit'));
+        
+        $this->user->refresh();
+        $this->assertNotNull($this->user->profile_picture);
+        Storage::disk('public')->assertExists($this->user->profile_picture);
+    }
+
+    public function test_pelapor_can_remove_avatar()
+    {
+        Storage::fake('public');
+        
+        // Initial setup: User has a photo
+        $file = UploadedFile::fake()->image('avatar.jpg');
+        $path = $file->store('profile-photos', 'public');
+        
+        $this->user->update(['profile_picture' => $path]);
+        Storage::disk('public')->assertExists($path);
+
+        $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
+            'full_name' => 'John Doe',
+            'phone_number' => '081234567890',
+            'remove_photo' => 1,
+        ]);
+
+        $response->assertRedirect(route('pelapor.profile.edit'));
+        
+        $this->user->refresh();
+        $this->assertNull($this->user->profile_picture);
+        Storage::disk('public')->assertMissing($path);
+    }
+
+    public function test_pelapor_can_update_password()
+    {
+        $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
+            'full_name' => 'John Doe',
+            'phone_number' => '081234567890',
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertRedirect(route('pelapor.profile.edit'));
+        
+        $this->user->refresh();
+        $this->assertTrue(Hash::check('newpassword123', $this->user->password));
     }
 }

@@ -1,21 +1,158 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="space-y-6">
-    <div class="flex items-center justify-between">
+<div class="space-y-6 max-w-4xl mx-auto">
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
-            <h1 class="text-2xl font-semibold text-text">Perbaiki Laporan</h1>
-            <p class="text-sm text-muted mt-1">Laporan {{ $report->report_number }} membutuhkan perbaikan.</p>
+            <span class="text-xs font-bold tracking-wider text-primary uppercase mb-1 block">Portal Layanan Masyarakat</span>
+            <h1 class="text-2xl font-bold text-text">Perbaiki Laporan Kematian</h1>
+            <p class="text-sm text-muted mt-1">Perbarui data laporan No: {{ $report->report_number }} sesuai arahan verifikator.</p>
         </div>
-        <a href="{{ route('pelapor.laporan.show', $report->id) }}" class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors text-sm font-medium">
-            Batal
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('pelapor.laporan.show', $report->id) }}" class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
+                Batal
+            </a>
+        </div>
     </div>
 
-    <div class="bg-surface rounded border border-gray-200 overflow-hidden">
-        <div class="p-6">
-            <p class="text-sm text-muted">Formulir Perbaikan Laporan (Dalam Pengembangan Phase 6E)</p>
+    @if ($errors->any())
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">Terdapat kesalahan pada isian form!</strong>
+            <p class="text-sm mt-1">Mohon periksa kembali field yang ditandai dengan warna merah di bawah ini.</p>
         </div>
-    </div>
+    @endif
+
+    <form action="{{ route('pelapor.laporan.update', $report->id) }}" method="POST" class="space-y-8" novalidate onsubmit="document.getElementById('submit-btn').disabled = true; document.getElementById('submit-btn').innerText = 'Memproses...';">
+        @csrf
+        @method('PUT')
+
+        <!-- SECTION: Data Almarhum -->
+        <x-ui.card class="border border-orange-100 shadow-sm overflow-hidden">
+            <div class="p-6 md:p-8 border-b border-orange-100 bg-orange-50 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-orange-900 uppercase tracking-wide">Data Almarhum</h2>
+                    <p class="text-sm text-orange-700/80 mt-1">Perbaiki identitas almarhum dengan teliti dan sesuai dengan dokumen resmi.</p>
+                </div>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="nik" class="block text-sm font-medium text-gray-700 mb-1">NIK Almarhum <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <input type="text" name="nik" id="nik" value="{{ old('nik', $report->deceased->nik) }}" maxlength="16" class="w-full rounded-md shadow-sm focus:ring-primary {{ $errors->has('nik') ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary' }}" required placeholder="16 Digit NIK" aria-required="true" aria-invalid="{{ $errors->has('nik') ? 'true' : 'false' }}">
+                    @error('nik')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="family_card_number" class="block text-sm font-medium text-gray-700 mb-1">Nomor Kartu Keluarga <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <input type="text" name="family_card_number" id="family_card_number" value="{{ old('family_card_number', $report->deceased->family_card_number) }}" maxlength="16" class="w-full rounded-md shadow-sm focus:ring-primary {{ $errors->has('family_card_number') ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary' }}" required placeholder="16 Digit No KK" aria-required="true" aria-invalid="{{ $errors->has('family_card_number') ? 'true' : 'false' }}">
+                    @error('family_card_number')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap Almarhum <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <input type="text" name="name" id="name" value="{{ old('name', $report->deceased->name) }}" class="w-full rounded-md shadow-sm focus:ring-primary {{ $errors->has('name') ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary' }}" required aria-required="true" aria-invalid="{{ $errors->has('name') ? 'true' : 'false' }}">
+                    @error('name')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <select name="gender" id="gender" class="w-full rounded-md shadow-sm focus:ring-primary {{ $errors->has('gender') ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary' }}" required aria-required="true" aria-invalid="{{ $errors->has('gender') ? 'true' : 'false' }}">
+                        <option value="">Pilih Jenis Kelamin...</option>
+                        <option value="Laki-laki" {{ old('gender', $report->deceased->gender) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                        <option value="Perempuan" {{ old('gender', $report->deceased->gender) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                    </select>
+                    @error('gender')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="district_id" class="block text-sm font-medium text-gray-700 mb-1">Kabupaten/Kota <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <select name="district_id" id="district_id" class="w-full rounded-md shadow-sm focus:ring-primary {{ $errors->has('district_id') ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary' }}" required aria-required="true" aria-invalid="{{ $errors->has('district_id') ? 'true' : 'false' }}">
+                        <option value="">Pilih Kabupaten/Kota...</option>
+                        @foreach($districts as $district)
+                            <option value="{{ $district->id }}" {{ old('district_id', $report->deceased->district_id) == $district->id ? 'selected' : '' }}>{{ $district->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('district_id')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="birth_place" class="block text-sm font-medium text-gray-700 mb-1">Tempat Lahir <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <input type="text" name="birth_place" id="birth_place" value="{{ old('birth_place', $report->deceased->birth_place) }}" class="w-full rounded-md shadow-sm focus:ring-primary {{ $errors->has('birth_place') ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary' }}" required aria-required="true" aria-invalid="{{ $errors->has('birth_place') ? 'true' : 'false' }}">
+                    @error('birth_place')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Lahir <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <input type="date" name="birth_date" id="birth_date" value="{{ old('birth_date', optional($report->deceased->birth_date)->format('Y-m-d')) }}" class="w-full rounded-md shadow-sm focus:ring-primary {{ $errors->has('birth_date') ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary' }}" required aria-required="true" aria-invalid="{{ $errors->has('birth_date') ? 'true' : 'false' }}">
+                    @error('birth_date')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="death_place" class="block text-sm font-medium text-gray-700 mb-1">Tempat Meninggal</label>
+                    <input type="text" name="death_place" id="death_place" value="{{ old('death_place', $report->deceased->death_place) }}" class="w-full rounded-md shadow-sm focus:ring-primary {{ $errors->has('death_place') ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary' }}" placeholder="Opsional" aria-invalid="{{ $errors->has('death_place') ? 'true' : 'false' }}">
+                    @error('death_place')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div>
+                    <label for="death_date" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Meninggal <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <input type="date" name="death_date" id="death_date" value="{{ old('death_date', optional($report->deceased->death_date)->format('Y-m-d')) }}" max="{{ now()->format('Y-m-d') }}" class="w-full rounded-md shadow-sm focus:ring-primary {{ $errors->has('death_date') ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary' }}" required aria-required="true" aria-invalid="{{ $errors->has('death_date') ? 'true' : 'false' }}">
+                    @error('death_date')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Alamat <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <textarea name="address" id="address" rows="3" class="w-full rounded-md shadow-sm focus:ring-primary {{ $errors->has('address') ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary' }}" required aria-required="true" aria-invalid="{{ $errors->has('address') ? 'true' : 'false' }}">{{ old('address', $report->deceased->address) }}</textarea>
+                    @error('address')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        </x-ui.card>
+
+        <!-- SECTION: Konfirmasi & Submit -->
+        <x-ui.card class="border border-gray-200 shadow-sm overflow-hidden">
+            <div class="p-6 bg-gray-50 flex flex-col gap-6">
+                <div class="flex items-start bg-white p-4 rounded-lg border border-gray-200">
+                    <div class="flex items-center h-5 mt-0.5">
+                        <input id="agreement" name="agreement" type="checkbox" required class="w-5 h-5 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-offset-white" {{ old('agreement') ? 'checked' : '' }} aria-required="true">
+                    </div>
+                    <label for="agreement" class="ml-3 text-sm text-gray-600 cursor-pointer select-none">
+                        Dengan mencentang kotak ini, saya menyatakan bahwa perbaikan data ini adalah 
+                        <strong class="font-semibold text-gray-900">benar dan sah secara hukum</strong>.
+                    </label>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
+                    <a href="{{ route('pelapor.laporan.show', $report->id) }}" class="w-full sm:w-auto px-6 py-2.5 text-gray-600 font-medium hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 text-center">
+                        Batal
+                    </a>
+                    <button type="submit" id="submit-btn" class="w-full sm:w-auto px-8 py-2.5 bg-primary text-white font-medium rounded hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                        Simpan Perbaikan
+                    </button>
+                </div>
+            </div>
+        </x-ui.card>
+    </form>
 </div>
 @endsection
