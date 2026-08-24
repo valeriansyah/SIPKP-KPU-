@@ -34,11 +34,11 @@
 
     <!-- PHASE 5: Statistics Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-        <x-dashboard.stat-card title="Total Laporan" :value="$metrics['total'] ?? 0" status="total" description="Semua laporan Anda" variant="solid" />
-        <x-dashboard.stat-card title="Pending" :value="$metrics['pending'] ?? 0" status="pending" description="Menunggu verifikasi" variant="solid" />
-        <x-dashboard.stat-card title="Diproses" :value="$metrics['diproses'] ?? 0" status="diproses" description="Sedang ditindaklanjuti" variant="solid" />
-        <x-dashboard.stat-card title="Perlu Perbaikan" :value="$metrics['perlu_perbaikan'] ?? 0" status="perlu_perbaikan" description="Butuh perbaikan data" variant="solid" />
-        <x-dashboard.stat-card title="Selesai" :value="($metrics['disetujui'] ?? 0) + ($metrics['ditolak'] ?? 0)" status="disetujui" description="Disetujui / Ditolak" variant="solid" />
+        <x-dashboard.stat-card title="Total Laporan" :value="$metrics['total'] ?? 0" status="total" description="Semua laporan Anda" />
+        <x-dashboard.stat-card title="Pending" :value="$metrics['pending'] ?? 0" status="pending" description="Menunggu verifikasi" />
+        <x-dashboard.stat-card title="Diproses" :value="$metrics['diproses'] ?? 0" status="diproses" description="Sedang ditindaklanjuti" />
+        <x-dashboard.stat-card title="Perlu Perbaikan" :value="$metrics['perlu_perbaikan'] ?? 0" status="perlu_perbaikan" description="Butuh perbaikan data" />
+        <x-dashboard.stat-card title="Selesai" :value="($metrics['disetujui'] ?? 0) + ($metrics['ditolak'] ?? 0)" status="disetujui" description="Disetujui / Ditolak" />
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
