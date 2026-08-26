@@ -77,6 +77,88 @@ class DashboardIntegrationValidationTest extends TestCase
         });
     }
 
+    public function test_sub_operator_sees_empty_queue()
+    {
+        $subOpRole = Role::where('role_name', 'Sub Operator')->first();
+        $subOp = User::factory()->create([
+            'role_id' => $subOpRole->id,
+            'district_id' => District::first()->id,
+        ]);
+
+        $response = $this->actingAs($subOp)->get('/sub-operator/dashboard');
+        $response->assertStatus(200);
+        $response->assertViewHas('queue', function ($queue) {
+            return $queue->isEmpty();
+        });
+    }
+
+    public function test_pelapor_sees_sub_operator_contact_by_district()
+    {
+        $pelaporRole = Role::where('role_name', 'Pelapor')->first();
+        $subOpRole = Role::where('role_name', 'Sub Operator')->first();
+
+        $districtA = District::first();
+        $districtB = District::where('id', '!=', $districtA->id)->first();
+
+        // Sub Operator for District A
+        $subOpA = User::factory()->create([
+            'role_id' => $subOpRole->id,
+            'district_id' => $districtA->id,
+            'full_name' => 'Sub Op District A',
+            'phone_number' => '08111111111',
+        ]);
+
+        // Sub Operator for District B (no phone)
+        $subOpB = User::factory()->create([
+            'role_id' => $subOpRole->id,
+            'district_id' => $districtB->id,
+            'full_name' => 'Sub Op District B',
+            'phone_number' => null,
+        ]);
+
+        // Pelapor in District A
+        $pelaporA = User::factory()->create([
+            'role_id' => $pelaporRole->id,
+            'district_id' => $districtA->id,
+        ]);
+
+        // TEST 3: Pelapor A sees Sub Op A contact
+        $responseA = $this->actingAs($pelaporA)->get('/pelapor/dashboard');
+        $responseA->assertStatus(200);
+        $responseA->assertViewHas('subOperator', function ($subOp) use ($subOpA) {
+            return $subOp->id === $subOpA->id;
+        });
+        $responseA->assertSee('Sub Op District A');
+        $responseA->assertSee('08111111111');
+        
+        // TEST 4: Pelapor A does NOT see Sub Op B contact
+        $responseA->assertDontSee('Sub Op District B');
+
+        // Pelapor in District B
+        $pelaporB = User::factory()->create([
+            'role_id' => $pelaporRole->id,
+            'district_id' => $districtB->id,
+        ]);
+
+        // TEST 5: Dashboard is normal if phone is null (Sub Op B)
+        $responseB = $this->actingAs($pelaporB)->get('/pelapor/dashboard');
+        $responseB->assertStatus(200);
+        $responseB->assertSee('Sub Op District B');
+        $responseB->assertSee('Nomor telepon belum tersedia');
+
+        // Pelapor in District C (no Sub Operator)
+        $districtC = District::factory()->create();
+        $pelaporC = User::factory()->create([
+            'role_id' => $pelaporRole->id,
+            'district_id' => $districtC->id,
+        ]);
+
+        $responseC = $this->actingAs($pelaporC)->get('/pelapor/dashboard');
+        $responseC->assertStatus(200);
+        $responseC->assertSee('Kontak Belum Tersedia');
+        $responseC->assertSee('Kontak Sub Operator wilayah Anda belum tersedia');
+    }
+
     public function test_sub_operator_can_see_only_own_district_stats()
     {
         $subOpRole = Role::where('role_name', 'Sub Operator')->first();

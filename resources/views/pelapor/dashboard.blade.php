@@ -110,8 +110,8 @@
         </div>
 
         <!-- PHASE 6: Status Laporan Terakhir -->
-        <div>
-            <x-ui.card class="h-full">
+        <div class="flex flex-col gap-6">
+            <x-ui.card>
                 <x-slot name="header">
                     <h2 class="text-lg font-bold text-gray-900">Status Laporan Terakhir</h2>
                 </x-slot>
@@ -244,6 +244,70 @@
                             <p class="text-sm font-medium text-gray-500">Belum ada laporan</p>
                         </div>
                     @endif
+                </div>
+            </x-ui.card>
+
+            <!-- SUB OPERATOR CONTACT CARD -->
+            <x-ui.card class="bg-blue-50/50 border border-blue-100">
+                <x-slot name="header">
+                    <h2 class="text-lg font-bold text-blue-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                        Butuh Bantuan?
+                    </h2>
+                </x-slot>
+                
+                <div class="p-2">
+                    <p class="text-sm text-gray-700 mb-4 text-balance">Jika Anda mengalami kendala dalam pelaporan atau diminta melakukan perbaikan, silakan hubungi Sub Operator wilayah Anda.</p>
+                    
+                    <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                        @if(isset($subOperator) && $subOperator)
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold shrink-0">
+                                    {{ strtoupper(substr($subOperator->full_name, 0, 1)) }}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-bold text-gray-900 truncate">{{ $subOperator->full_name }}</p>
+                                    <p class="text-xs text-gray-500 mb-2 truncate">{{ $subOperator->district->name ?? 'Wilayah Tidak Diketahui' }}</p>
+                                    
+                                    @if($subOperator->phone_number && $subOperator->phone_number !== '-')
+                                        <div class="flex items-center gap-2 text-sm font-medium text-gray-800">
+                                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                            {{ $subOperator->phone_number }}
+                                        </div>
+                                        
+                                        @php
+                                            // Normalize phone number for WhatsApp: replace leading 0 with 62, remove non-digits
+                                            $cleanPhone = preg_replace('/[^0-9]/', '', $subOperator->phone_number);
+                                            if (str_starts_with($cleanPhone, '0')) {
+                                                $waNumber = '62' . substr($cleanPhone, 1);
+                                            } else {
+                                                $waNumber = $cleanPhone;
+                                            }
+                                        @endphp
+                                        
+                                        @if($waNumber)
+                                        <a href="https://wa.me/{{ $waNumber }}" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex items-center justify-center w-full px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                            <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.127.554 4.195 1.602 6.012L.15 23.518l5.625-1.474a12.04 12.04 0 006.255 1.737h.005c6.645 0 12.03-5.385 12.03-12.031S18.677 0 12.031 0zM12.031 21.758h-.005a10.02 10.02 0 01-5.111-1.39l-.367-.217-3.8.995.998-3.705-.238-.379A10.02 10.02 0 012.012 12.03C2.012 6.505 6.505 2.012 12.031 2.012c5.526 0 10.02 4.493 10.02 10.019s-4.494 10.018-10.02 10.018zm5.503-7.514c-.302-.151-1.785-.881-2.062-.981-.277-.101-.479-.151-.68.151-.202.302-.78 1.031-.957 1.233-.176.202-.353.226-.655.075-.302-.151-1.275-.47-2.428-1.5-.898-.802-1.504-1.792-1.68-2.094-.176-.302-.019-.465.132-.616.136-.136.302-.353.453-.53.151-.176.202-.302.302-.504.101-.202.05-.378-.025-.53-.075-.151-.68-1.639-.932-2.244-.246-.59-.496-.51-.68-.52-.176-.01-.378-.01-.58-.01-.202 0-.53.076-.807.378-.277.302-1.058 1.031-1.058 2.515 0 1.484 1.083 2.918 1.234 3.12.151.202 2.128 3.245 5.151 4.545.719.31 1.28.495 1.718.634.721.23 1.378.197 1.895.12.58-.087 1.785-.73 2.037-1.434.252-.705.252-1.31.176-1.434-.076-.126-.277-.202-.58-.353z"/></svg>
+                                            Hubungi via WhatsApp
+                                        </a>
+                                        @endif
+                                    @else
+                                        <p class="text-xs text-orange-600 font-medium italic mt-1">Nomor telepon belum tersedia.</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @else
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900 mb-1">Kontak Belum Tersedia</p>
+                                    <p class="text-xs text-gray-600 text-balance">Kontak Sub Operator wilayah Anda belum tersedia. Silakan menghubungi KPU Kabupaten/Kota setempat.</p>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </x-ui.card>
         </div>

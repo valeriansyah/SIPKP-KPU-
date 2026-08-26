@@ -43,9 +43,8 @@ class SubOperatorController extends Controller
         $data['password'] = Hash::make($data['password']);
         $data['role_id'] = $role->id;
         
-        // Auto-generate username and dummy phone from email if needed (some systems require it)
+        // Auto-generate username from email if needed
         $data['username'] = explode('@', $data['email'])[0] . '_' . rand(100, 999);
-        $data['phone_number'] = $data['phone_number'] ?? '-';
 
         User::create($data);
         return redirect()->route('operator.master-data.sub-operators.index')->with('success', 'Akun Sub Operator berhasil dibuat.');

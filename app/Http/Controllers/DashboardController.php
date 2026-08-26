@@ -21,8 +21,14 @@ class DashboardController extends Controller
 
         $metrics = $this->dashboardService->getPelaporMetrics($user);
         $recentReports = $this->dashboardService->getPelaporRecentReports($user, 5);
+        
+        $subOperator = \App\Models\User::where('district_id', $user->district_id)
+            ->whereHas('role', function ($q) {
+                $q->where('role_name', 'Sub Operator')->orWhere('role_name', 'sub_operator');
+            })
+            ->first();
 
-        return view('pelapor.dashboard', compact('metrics', 'recentReports'));
+        return view('pelapor.dashboard', compact('metrics', 'recentReports', 'subOperator'));
     }
 
     public function subOperator(Request $request)

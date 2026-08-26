@@ -144,12 +144,26 @@ class MasterDataTest extends TestCase
             'email' => 'subop@test.com',
             'password' => 'password123',
             'district_id' => $district->id,
-            'is_active' => '1'
+            'is_active' => '1',
+            'phone_number' => '0812345678',
         ])->assertRedirect();
 
         $subOp = User::where('email', 'subop@test.com')->first();
         $this->assertNotNull($subOp);
         $this->assertEquals($district->id, $subOp->district_id);
         $this->assertEquals('Sub Operator', $subOp->role->role_name); // Forced by controller
+        $this->assertEquals('0812345678', $subOp->phone_number);
+
+        // Test Update Phone Number
+        $this->actingAs($operator)->put(route('operator.master-data.sub-operators.update', $subOp->id), [
+            'full_name' => 'Sub Op Test Updated',
+            'email' => 'subop@test.com',
+            'district_id' => $district->id,
+            'is_active' => '1',
+            'phone_number' => '0899999999',
+        ])->assertRedirect();
+
+        $subOp->refresh();
+        $this->assertEquals('0899999999', $subOp->phone_number);
     }
 }
