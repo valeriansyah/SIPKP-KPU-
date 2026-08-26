@@ -48,7 +48,7 @@
         </div>
     @endif
 
-    <form action="{{ route('pelapor.laporan.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8" novalidate onsubmit="document.getElementById('submit-btn').disabled = true; document.getElementById('submit-btn').innerText = 'Memproses...';">
+    <form id="report-form" action="{{ route('pelapor.laporan.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8" novalidate>
         @csrf
 
         <!-- SECTION 1: Data Pelapor -->
@@ -388,6 +388,90 @@
                 }
             });
         });
+    });
+
+    document.getElementById('report-form').addEventListener('submit', function(e) {
+        let hasError = false;
+        let firstErrorElement = null;
+
+        // Reset previous errors
+        document.querySelectorAll('.client-error').forEach(el => el.remove());
+        document.querySelectorAll('.border-red-500').forEach(el => {
+            if(el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+                el.classList.remove('border-red-500');
+                el.classList.add('border-gray-300');
+            }
+        });
+
+        // 1. Validate Required Non-File Inputs
+        const requiredInputs = this.querySelectorAll('input[required]:not([type="file"]), select[required], textarea[required]');
+        requiredInputs.forEach(input => {
+            let isInvalid = false;
+            
+            if (input.type === 'checkbox') {
+                isInvalid = !input.checked;
+            } else {
+                isInvalid = !input.value.trim();
+            }
+
+            if (isInvalid) {
+                hasError = true;
+                
+                // Add error styling
+                input.classList.remove('border-gray-300');
+                input.classList.add('border-red-500');
+                
+                // Create error message
+                const errorMsg = document.createElement('p');
+                errorMsg.className = 'mt-1 text-sm text-red-600 client-error';
+                
+                // Determine Field Name based on previous label
+                let fieldName = 'Field ini';
+                if (input.previousElementSibling && input.previousElementSibling.tagName === 'LABEL') {
+                    fieldName = input.previousElementSibling.innerText.replace('*', '').trim();
+                } else if (input.id === 'agreement') {
+                    fieldName = 'Persetujuan';
+                }
+                
+                errorMsg.innerText = fieldName + ' wajib diisi / dicentang.';
+                
+                // Append error message
+                if (input.id === 'agreement') {
+                    input.closest('.flex').parentNode.appendChild(errorMsg);
+                } else {
+                    input.parentNode.appendChild(errorMsg);
+                }
+                
+                if (!firstErrorElement) firstErrorElement = input;
+            }
+        });
+
+        // 2. Validate Required Documents
+        const requiredDocs = this.querySelectorAll('input[type="file"][required]');
+        requiredDocs.forEach(input => {
+            if (input.files.length === 0) {
+                hasError = true;
+                const typeId = input.id.split('_')[1];
+                showError(typeId, "Dokumen wajib dilampirkan.");
+                
+                const card = document.getElementById(`upload-card-${typeId}`);
+                if (!firstErrorElement) firstErrorElement = card;
+            }
+        });
+
+        if (hasError) {
+            e.preventDefault(); // Stop form submission
+            
+            // Scroll to the first error
+            if (firstErrorElement) {
+                firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        } else {
+            // Valid -> Disable button and show processing state
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerText = 'Memproses...';
+        }
     });
 </script>
 @endpush
