@@ -18,6 +18,7 @@ class Phase7HPelaporProfileTest extends TestCase
     {
         parent::setUp();
         $this->role = Role::firstOrCreate(['role_name' => 'Pelapor']);
+        $this->district = \App\Models\District::factory()->create();
         $this->user = User::create([
             'full_name' => 'John Doe',
             'email' => 'john@example.com',
@@ -25,6 +26,7 @@ class Phase7HPelaporProfileTest extends TestCase
             'phone_number' => '-',
             'password' => Hash::make('password'),
             'role_id' => $this->role->id,
+            'district_id' => $this->district->id,
             'is_active' => true,
         ]);
     }
@@ -43,6 +45,7 @@ class Phase7HPelaporProfileTest extends TestCase
         $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
             'full_name' => 'John Doe Updated',
             'phone_number' => '081234567890',
+            'district_id' => $this->district->id,
         ]);
 
         $response->assertRedirect(route('pelapor.profile.edit'));
@@ -52,6 +55,7 @@ class Phase7HPelaporProfileTest extends TestCase
             'id' => $this->user->id,
             'full_name' => 'John Doe Updated',
             'phone_number' => '081234567890',
+            'district_id' => $this->district->id,
         ]);
     }
 
@@ -60,6 +64,7 @@ class Phase7HPelaporProfileTest extends TestCase
         $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
             'full_name' => '', // invalid
             'phone_number' => '081234567890',
+            'district_id' => $this->district->id,
         ]);
 
         $response->assertSessionHasErrors(['full_name']);
@@ -79,6 +84,7 @@ class Phase7HPelaporProfileTest extends TestCase
         $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
             'full_name' => 'John Doe',
             'phone_number' => '081234567890',
+            'district_id' => $this->district->id,
             'profile_picture' => $file,
         ]);
 
@@ -103,6 +109,7 @@ class Phase7HPelaporProfileTest extends TestCase
         $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
             'full_name' => 'John Doe',
             'phone_number' => '081234567890',
+            'district_id' => $this->district->id,
             'remove_photo' => 1,
         ]);
 
@@ -118,6 +125,7 @@ class Phase7HPelaporProfileTest extends TestCase
         $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
             'full_name' => 'John Doe',
             'phone_number' => '081234567890',
+            'district_id' => $this->district->id,
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
         ]);
@@ -143,6 +151,7 @@ class Phase7HPelaporProfileTest extends TestCase
         $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
             'full_name' => 'John Doe',
             'phone_number' => '081234567890',
+            'district_id' => $this->district->id,
             'profile_picture' => $newFile,
         ]);
 
@@ -167,6 +176,7 @@ class Phase7HPelaporProfileTest extends TestCase
         $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
             'full_name' => 'John Doe',
             'phone_number' => '081234567890',
+            'district_id' => \App\Models\District::first()->id,
             'profile_picture' => $file,
         ]);
 
@@ -174,5 +184,53 @@ class Phase7HPelaporProfileTest extends TestCase
         
         $this->user->refresh();
         $this->assertNull($this->user->profile_picture);
+    }
+
+    public function test_pelapor_can_update_district()
+    {
+        $district = \App\Models\District::factory()->create();
+
+        $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
+            'full_name' => 'John Doe',
+            'phone_number' => '081234567890',
+            'district_id' => $district->id,
+        ]);
+
+        $response->assertRedirect(route('pelapor.profile.edit'));
+        
+        $this->user->refresh();
+        $this->assertEquals($district->id, $this->user->district_id);
+    }
+
+    public function test_pelapor_profile_rejects_invalid_district()
+    {
+        $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
+            'full_name' => 'John Doe',
+            'phone_number' => '081234567890',
+            'district_id' => 99999, // Invalid ID
+        ]);
+
+        $response->assertSessionHasErrors(['district_id']);
+        
+        $this->user->refresh();
+        $this->assertEquals($this->district->id, $this->user->district_id); // Should not change
+    }
+
+    public function test_pelapor_cannot_mass_assign_role()
+    {
+        $adminRole = Role::firstOrCreate(['role_name' => 'Operator Provinsi']);
+
+        $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
+            'full_name' => 'John Doe',
+            'phone_number' => '081234567890',
+            'district_id' => $this->district->id,
+            'role_id' => $adminRole->id, // Attempt to hijack role
+        ]);
+
+        $response->assertRedirect(route('pelapor.profile.edit'));
+        
+        $this->user->refresh();
+        $this->assertEquals($this->district->id, $this->user->district_id);
+        $this->assertNotEquals($adminRole->id, $this->user->role_id); // Role should not change
     }
 }

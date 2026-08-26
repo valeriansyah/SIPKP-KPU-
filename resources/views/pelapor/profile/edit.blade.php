@@ -126,6 +126,25 @@
                             <h3 class="text-lg font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Kontak</h3>
                             
                             <div class="mb-5">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1" for="district_id">Kabupaten/Kota <span class="text-red-500">*</span></label>
+                                <select id="district_id" name="district_id" class="bg-white border text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 transition-colors @error('district_id') border-red-500 @else border-gray-300 @enderror">
+                                    <option value="">Pilih Kabupaten/Kota</option>
+                                    @foreach($districts as $district)
+                                        <option value="{{ $district->id }}" {{ old('district_id', $user->district_id) == $district->id ? 'selected' : '' }}>
+                                            {{ $district->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-[11px] text-gray-500 mt-1.5 flex items-center">
+                                    <svg class="w-3.5 h-3.5 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Kontak Sub Operator akan disesuaikan dengan Kabupaten/Kota yang Anda pilih.
+                                </p>
+                                @error('district_id')
+                                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="mb-5">
                                 <label class="block text-sm font-semibold text-gray-700 mb-1" for="phone_number">Nomor HP/WhatsApp <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

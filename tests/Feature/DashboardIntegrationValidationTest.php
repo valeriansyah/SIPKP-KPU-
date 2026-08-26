@@ -159,6 +159,63 @@ class DashboardIntegrationValidationTest extends TestCase
         $responseC->assertSee('Kontak Sub Operator wilayah Anda belum tersedia');
     }
 
+    public function test_pelapor_legacy_with_null_district_sees_prompt()
+    {
+        $pelaporRole = Role::where('role_name', 'Pelapor')->first();
+        
+        // TEST 6: Pelapor legacy with null district
+        $legacyPelapor = User::factory()->create([
+            'role_id' => $pelaporRole->id,
+            'district_id' => null,
+        ]);
+
+        $response = $this->actingAs($legacyPelapor)->get('/pelapor/dashboard');
+        $response->assertStatus(200);
+        $response->assertSee('Kontak Belum Tersedia');
+        $response->assertSee('Lengkapi Kabupaten/Kota pada Profil Saya');
+        $response->assertSee(route('pelapor.profile.edit'));
+    }
+
+    public function test_pelapor_switches_district_updates_sub_operator_contact()
+    {
+        $pelaporRole = Role::where('role_name', 'Pelapor')->first();
+        $subOpRole = Role::where('role_name', 'Sub Operator')->first();
+
+        $districtA = District::first();
+        $districtB = District::where('id', '!=', $districtA->id)->first();
+
+        $subOpA = User::factory()->create([
+            'role_id' => $subOpRole->id,
+            'district_id' => $districtA->id,
+            'full_name' => 'Sub Op District A',
+        ]);
+
+        $subOpB = User::factory()->create([
+            'role_id' => $subOpRole->id,
+            'district_id' => $districtB->id,
+            'full_name' => 'Sub Op District B',
+        ]);
+
+        // TEST 4: Pelapor in District A sees Sub Op A
+        $pelapor = User::factory()->create([
+            'role_id' => $pelaporRole->id,
+            'district_id' => $districtA->id,
+        ]);
+
+        $responseA = $this->actingAs($pelapor)->get('/pelapor/dashboard');
+        $responseA->assertStatus(200);
+        $responseA->assertSee('Sub Op District A');
+        $responseA->assertDontSee('Sub Op District B');
+
+        // TEST 5: Pelapor updates to District B
+        $pelapor->update(['district_id' => $districtB->id]);
+
+        $responseB = $this->actingAs($pelapor)->get('/pelapor/dashboard');
+        $responseB->assertStatus(200);
+        $responseB->assertSee('Sub Op District B');
+        $responseB->assertDontSee('Sub Op District A');
+    }
+
     public function test_sub_operator_can_see_only_own_district_stats()
     {
         $subOpRole = Role::where('role_name', 'Sub Operator')->first();
