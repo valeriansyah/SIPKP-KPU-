@@ -127,4 +127,52 @@ class Phase7HPelaporProfileTest extends TestCase
         $this->user->refresh();
         $this->assertTrue(Hash::check('newpassword123', $this->user->password));
     }
+
+    public function test_pelapor_can_replace_avatar()
+    {
+        Storage::fake('public');
+        
+        // Initial setup: User has an old photo
+        $oldFile = UploadedFile::fake()->image('old_avatar.jpg');
+        $oldPath = $oldFile->store('profile-photos', 'public');
+        $this->user->update(['profile_picture' => $oldPath]);
+        Storage::disk('public')->assertExists($oldPath);
+
+        // Upload new photo
+        $newFile = UploadedFile::fake()->image('new_avatar.png');
+        $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
+            'full_name' => 'John Doe',
+            'phone_number' => '081234567890',
+            'profile_picture' => $newFile,
+        ]);
+
+        $response->assertRedirect(route('pelapor.profile.edit'));
+        
+        $this->user->refresh();
+        $this->assertNotNull($this->user->profile_picture);
+        $this->assertNotEquals($oldPath, $this->user->profile_picture);
+        
+        // Old file should be deleted
+        Storage::disk('public')->assertMissing($oldPath);
+        // New file should exist
+        Storage::disk('public')->assertExists($this->user->profile_picture);
+    }
+
+    public function test_pelapor_cannot_upload_non_image_avatar()
+    {
+        Storage::fake('public');
+
+        $file = UploadedFile::fake()->create('document.pdf', 100, 'application/pdf');
+
+        $response = $this->actingAs($this->user)->put(route('pelapor.profile.update'), [
+            'full_name' => 'John Doe',
+            'phone_number' => '081234567890',
+            'profile_picture' => $file,
+        ]);
+
+        $response->assertSessionHasErrors(['profile_picture']);
+        
+        $this->user->refresh();
+        $this->assertNull($this->user->profile_picture);
+    }
 }
