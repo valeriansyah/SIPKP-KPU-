@@ -56,6 +56,7 @@ class ReportCreationFlowTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('pelapor.laporan.create');
         $response->assertSee('Buat Laporan Kematian Pemilih');
+        $response->assertViewHas('documentTypes');
     }
 
     public function test_operator_and_sub_operator_cannot_view_create_form()

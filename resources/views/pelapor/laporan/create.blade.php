@@ -476,4 +476,72 @@
 </script>
 @endpush
 
+@if(!$errors->any() && empty(old()))
+<!-- PRE-SUBMISSION CHECKLIST MODAL -->
+<div id="preSubmissionModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"></div>
+    <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all flex flex-col">
+        <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white">
+            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2" id="modal-title">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Persiapkan Dokumen Pelaporan
+            </h3>
+        </div>
+        <div class="px-6 py-5 space-y-4 flex-grow overflow-y-auto max-h-[60vh]">
+            <p class="text-sm text-gray-600 leading-relaxed">
+                Sebelum membuat laporan kematian pemilih, pastikan Anda telah mempersiapkan seluruh data dan dokumen yang diperlukan.
+            </p>
+            
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 class="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Dokumen Wajib:</h4>
+                <ul class="space-y-3">
+                    @foreach($documentTypes->where('is_required', true) as $type)
+                    <li class="flex items-start">
+                        <div class="shrink-0 w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center mt-0.5 border border-green-200">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <span class="ml-3 text-sm text-gray-800 font-medium">{{ $type->name }}</span>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            
+            <div class="flex items-start gap-2 text-xs text-blue-700 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p>Pastikan dokumen dapat dibaca dengan jelas dan menggunakan format file yang diperbolehkan oleh sistem.</p>
+            </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row-reverse gap-3 bg-gray-50/80">
+            <button type="button" id="btn-close-modal" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-primary text-white font-bold rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors shadow-sm">
+                Saya Sudah Menyiapkan Dokumen
+            </button>
+            <a href="{{ route('pelapor.dashboard') }}" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors shadow-sm">
+                Kembali ke Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('preSubmissionModal');
+        const closeBtn = document.getElementById('btn-close-modal');
+        
+        if (modal) {
+            // Accessibility & scroll lock
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => { if(closeBtn) closeBtn.focus(); }, 100);
+            
+            closeBtn.addEventListener('click', function() {
+                modal.style.opacity = '0';
+                modal.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    modal.remove();
+                    document.body.style.overflow = '';
+                }, 200);
+            });
+        }
+    });
+</script>
+@endif
+
 @endsection
