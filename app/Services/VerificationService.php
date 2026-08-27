@@ -70,6 +70,26 @@ class VerificationService
                 'user_agent' => request()->userAgent(),
             ]);
 
+            // 5. Kirim Notifikasi Email
+            $newStatusSlug = Str::slug($newStatus->status_name, '_');
+            if ($currentStatusSlug !== $newStatusSlug) {
+                try {
+                    $pelapor = $report->user;
+                    if ($pelapor && !empty($pelapor->email)) {
+                        if ($newStatusSlug === 'perlu_perbaikan') {
+                            $pelapor->notify(new \App\Notifications\ReportNeedsRevisionNotification($report, $notes));
+                        } elseif ($newStatusSlug === 'disetujui' || $newStatusSlug === 'selesai') {
+                            $pelapor->notify(new \App\Notifications\ReportCompletedNotification($report));
+                        }
+                    }
+                } catch (Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to send report status notification: ' . $e->getMessage(), [
+                        'report_id' => $report->id,
+                        'user_id' => $report->user_id,
+                    ]);
+                }
+            }
+
             return $report->refresh()->load('reportStatus', 'reportVerifications');
         });
     }
