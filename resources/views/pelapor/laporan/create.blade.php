@@ -17,26 +17,50 @@
     </div>
 
     <!-- PROGRESS INDICATOR -->
-    <div class="hidden sm:block py-4">
-        <ul class="relative flex w-full justify-between items-center">
-            <li class="flex items-center text-primary font-medium w-full">
-                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold shrink-0">1</div>
-                <div class="ml-3 text-sm">Data Pelapor</div>
-                <div class="flex-auto border-t-2 border-primary mx-4"></div>
+    <div class="sticky top-0 z-30 bg-background/95 backdrop-blur-md pt-4 pb-4 border-b border-gray-200 mb-6 -mx-4 px-4 sm:-mx-6 sm:px-6 shadow-sm transition-all duration-300">
+        <ul class="relative flex flex-row w-full justify-between items-center" id="form-stepper">
+            <!-- Step 1 -->
+            <li class="flex items-center w-full" data-step="1">
+                <button type="button" data-step-target="1" class="step-circle flex items-center justify-center w-8 h-8 rounded-full bg-red-700 text-white font-bold shrink-0 transition-all duration-300 ease-in-out shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    <span class="step-icon pointer-events-none">1</span>
+                </button>
+                <button type="button" data-step-target="1" class="step-label ml-2 sm:ml-3 text-xs sm:text-sm font-semibold text-red-700 transition-all duration-300 ease-in-out whitespace-nowrap focus:outline-none rounded">Data Pelapor</button>
+                <div class="flex-auto relative mx-2 sm:mx-4 h-8 flex items-center">
+                    <div class="w-full border-t-2 border-slate-200"></div>
+                    <div class="absolute left-0 w-full border-t-2 border-red-700 transition-all duration-500 ease-in-out step-line-fill" data-step-line="1"></div>
+                </div>
             </li>
-            <li class="flex items-center text-primary font-medium w-full">
-                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold shrink-0">2</div>
-                <div class="ml-3 text-sm">Data Almarhum</div>
-                <div class="flex-auto border-t-2 border-primary mx-4"></div>
+            
+            <!-- Step 2 -->
+            <li class="flex items-center w-full" data-step="2">
+                <button type="button" data-step-target="2" class="step-circle flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-bold shrink-0 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400">
+                    <span class="step-icon pointer-events-none">2</span>
+                </button>
+                <button type="button" data-step-target="2" class="step-label ml-2 sm:ml-3 text-xs sm:text-sm text-slate-400 transition-all duration-300 ease-in-out whitespace-nowrap hidden sm:block focus:outline-none rounded">Data Almarhum</button>
+                <div class="flex-auto relative mx-2 sm:mx-4 h-8 flex items-center">
+                    <div class="w-full border-t-2 border-slate-200"></div>
+                    <div class="absolute left-0 w-0 border-t-2 border-red-700 transition-all duration-500 ease-in-out step-line-fill" data-step-line="2"></div>
+                </div>
             </li>
-            <li class="flex items-center text-primary font-medium w-full">
-                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold shrink-0">3</div>
-                <div class="ml-3 text-sm">Dokumen</div>
-                <div class="flex-auto border-t-2 border-gray-200 mx-4"></div>
+
+            <!-- Step 3 -->
+            <li class="flex items-center w-full" data-step="3">
+                <button type="button" data-step-target="3" class="step-circle flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-bold shrink-0 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400">
+                    <span class="step-icon pointer-events-none">3</span>
+                </button>
+                <button type="button" data-step-target="3" class="step-label ml-2 sm:ml-3 text-xs sm:text-sm text-slate-400 transition-all duration-300 ease-in-out whitespace-nowrap hidden sm:block focus:outline-none rounded">Dokumen</button>
+                <div class="flex-auto relative mx-2 sm:mx-4 h-8 flex items-center">
+                    <div class="w-full border-t-2 border-slate-200"></div>
+                    <div class="absolute left-0 w-0 border-t-2 border-red-700 transition-all duration-500 ease-in-out step-line-fill" data-step-line="3"></div>
+                </div>
             </li>
-            <li class="flex items-center text-gray-400 font-medium">
-                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-500 font-bold shrink-0">4</div>
-                <div class="ml-3 text-sm">Review</div>
+
+            <!-- Step 4 -->
+            <li class="flex items-center" data-step="4">
+                <button type="button" data-step-target="4" class="step-circle flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-bold shrink-0 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400">
+                    <span class="step-icon pointer-events-none">4</span>
+                </button>
+                <button type="button" data-step-target="4" class="step-label ml-2 sm:ml-3 text-xs sm:text-sm text-slate-400 transition-all duration-300 ease-in-out whitespace-nowrap hidden sm:block focus:outline-none rounded">Review</button>
             </li>
         </ul>
     </div>
@@ -52,7 +76,7 @@
         @csrf
 
         <!-- SECTION 1: Data Pelapor -->
-        <x-ui.card class="border border-red-100 shadow-sm overflow-hidden">
+        <x-ui.card class="border border-red-100 shadow-sm overflow-hidden scroll-mt-32" id="step-section-pelapor">
             <div class="p-6 md:p-8 border-b border-red-100 bg-red-50 flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
                     1
@@ -79,7 +103,7 @@
         </x-ui.card>
 
         <!-- SECTION 2: Data Almarhum -->
-        <x-ui.card class="border border-orange-100 shadow-sm overflow-hidden">
+        <x-ui.card class="border border-orange-100 shadow-sm overflow-hidden scroll-mt-32" id="step-section-almarhum">
             <div class="p-6 md:p-8 border-b border-orange-100 bg-orange-50 flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
                     2
@@ -182,7 +206,7 @@
         </x-ui.card>
 
         <!-- SECTION 3: Dokumen Pendukung -->
-        <x-ui.card class="border border-blue-100 shadow-sm overflow-hidden">
+        <x-ui.card class="border border-blue-100 shadow-sm overflow-hidden scroll-mt-32" id="step-section-dokumen">
             <div class="p-6 md:p-8 border-b border-blue-100 bg-blue-50 flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
                     3
@@ -230,7 +254,7 @@
         </x-ui.card>
 
         <!-- SECTION 4: Konfirmasi & Submit -->
-        <x-ui.card class="border border-gray-200 shadow-sm overflow-hidden">
+        <x-ui.card class="border border-gray-200 shadow-sm overflow-hidden scroll-mt-32" id="step-section-review">
             <div class="p-6 md:p-8 border-b border-gray-200 bg-gray-50 flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
                     4
@@ -473,6 +497,135 @@
             btn.innerText = 'Memproses...';
         }
     });
+
+    // --- STEPPER LOGIC ---
+    const sections = [
+        { id: 'step-section-pelapor', step: 1 },
+        { id: 'step-section-almarhum', step: 2 },
+        { id: 'step-section-dokumen', step: 3 },
+        { id: 'step-section-review', step: 4 }
+    ];
+    
+    let currentActiveStep = 1;
+
+    document.querySelectorAll('[data-step-target]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetStep = parseInt(this.getAttribute('data-step-target'));
+            if (!isNaN(targetStep)) {
+                const sectionId = sections.find(s => s.step === targetStep)?.id;
+                if (sectionId) {
+                    const el = document.getElementById(sectionId);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            }
+        });
+    });
+
+    function setStepState(step, state) {
+        const li = document.querySelector(`li[data-step="${step}"]`);
+        if (!li) return;
+        
+        const circle = li.querySelector('.step-circle');
+        const label = li.querySelector('.step-label');
+        const fill = li.querySelector('.step-line-fill');
+        const icon = li.querySelector('.step-icon');
+        
+        // Remove dynamic classes
+        circle.classList.remove('bg-red-700', 'text-white', 'bg-slate-100', 'text-slate-500', 'border', 'border-slate-200', 'bg-green-600');
+        label.classList.remove('text-red-700', 'font-semibold', 'text-slate-400', 'text-green-700');
+        if(fill) fill.classList.remove('border-red-700', 'border-green-600');
+
+        if (state === 'active') {
+            circle.classList.add('bg-red-700', 'text-white');
+            label.classList.add('text-red-700', 'font-semibold');
+            if(fill) {
+                fill.style.width = '50%';
+                fill.classList.add('border-red-700');
+            }
+            icon.innerHTML = step;
+        } else if (state === 'completed') {
+            circle.classList.add('bg-green-600', 'text-white');
+            label.classList.add('text-green-700', 'font-semibold');
+            if(fill) {
+                fill.style.width = '100%';
+                fill.classList.add('border-green-600');
+            }
+            icon.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>';
+        } else {
+            circle.classList.add('bg-slate-100', 'text-slate-500', 'border', 'border-slate-200');
+            label.classList.add('text-slate-400');
+            if(fill) fill.style.width = '0%';
+            icon.innerHTML = step;
+        }
+    }
+
+    function evaluateCompletedSteps() {
+        let step1Completed = true; // Data pelapor is read-only
+        
+        const nik = document.getElementById('nik')?.value.trim();
+        const name = document.querySelector('input[name="name"]')?.value.trim();
+        const gender = document.querySelector('select[name="gender"]')?.value;
+        const birthDate = document.getElementById('birth_date')?.value;
+        const deathDate = document.getElementById('death_date')?.value;
+        const address = document.getElementById('address')?.value.trim();
+        let step2Completed = !!(nik && name && gender && birthDate && deathDate && address);
+
+        const requiredDocs = document.querySelectorAll('input[type="file"][required]');
+        let step3Completed = true;
+        requiredDocs.forEach(input => {
+            if (input.files.length === 0) step3Completed = false;
+        });
+
+        return { 1: step1Completed, 2: step2Completed, 3: step3Completed };
+    }
+
+    function updateStepper() {
+        const completed = evaluateCompletedSteps();
+        
+        for (let i = 1; i <= 4; i++) {
+            if (i === currentActiveStep) {
+                setStepState(i, 'active');
+            } else if (i < currentActiveStep && completed[i]) {
+                setStepState(i, 'completed');
+            } else if (completed[i] && i !== 4) {
+                setStepState(i, 'completed');
+            } else {
+                setStepState(i, 'inactive');
+            }
+        }
+    }
+
+    const observerOptions = {
+        root: null,
+        rootMargin: '-20% 0px -60% 0px',
+        threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const sectionId = entry.target.id;
+                const stepObj = sections.find(s => s.id === sectionId);
+                if (stepObj && currentActiveStep !== stepObj.step) {
+                    currentActiveStep = stepObj.step;
+                    updateStepper();
+                }
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(s => {
+        const el = document.getElementById(s.id);
+        if (el) observer.observe(el);
+    });
+
+    document.getElementById('report-form').addEventListener('input', updateStepper);
+    document.getElementById('report-form').addEventListener('change', updateStepper);
+
+    setTimeout(updateStepper, 100);
 </script>
 @endpush
 
