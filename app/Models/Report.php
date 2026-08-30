@@ -39,8 +39,13 @@ class Report extends Model
         return $this->hasMany(Document::class);
     }
 
-    public function reportVerifications(): HasMany
+    public function reportVerifications()
     {
         return $this->hasMany(ReportVerification::class);
+    }
+
+    public function revisionItems()
+    {
+        return $this->hasMany(ReportRevisionItem::class);
     }
 }

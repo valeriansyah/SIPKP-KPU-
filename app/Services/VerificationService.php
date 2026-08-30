@@ -61,6 +61,51 @@ class VerificationService
                 'notes' => $notes,
             ]);
 
+            // Clear unresolved previous revisions if they exist to prevent duplicates if resubmitted without resolving
+            $report->revisionItems()->where('is_resolved', false)->delete();
+
+            // Create new revision items if necessary
+            $newStatusSlug = Str::slug($newStatus->status_name, '_');
+            if ($newStatusSlug === 'perlu_perbaikan') {
+                $fields = request('revision_fields', []);
+                $labels = [
+                    'nik' => 'NIK Pemilih',
+                    'family_card_number' => 'Nomor KK',
+                    'name' => 'Nama Pemilih',
+                    'gender' => 'Jenis Kelamin',
+                    'birth_place' => 'Tempat Lahir',
+                    'birth_date' => 'Tanggal Lahir',
+                    'death_place' => 'Tempat Meninggal',
+                    'death_date' => 'Tanggal Meninggal',
+                    'address' => 'Alamat',
+                    'district_id' => 'Kabupaten/Kota',
+                ];
+
+                foreach ($fields as $field) {
+                    if (isset($labels[$field])) {
+                        $report->revisionItems()->create([
+                            'revision_type' => 'data',
+                            'field_name' => $field,
+                            'label' => $labels[$field],
+                        ]);
+                    }
+                }
+
+                $docs = request('revision_documents', []);
+                if (!empty($docs)) {
+                    $documentTypes = \App\Models\DocumentType::whereIn('id', $docs)->get()->keyBy('id');
+                    foreach ($docs as $docId) {
+                        if (isset($documentTypes[$docId])) {
+                            $report->revisionItems()->create([
+                                'revision_type' => 'document',
+                                'document_type_id' => $docId,
+                                'label' => $documentTypes[$docId]->name,
+                            ]);
+                        }
+                    }
+                }
+            }
+
             // 4. Catat Audit Log
             AuditLog::create([
                 'user_id' => $user->id,

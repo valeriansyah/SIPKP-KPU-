@@ -107,14 +107,44 @@ class ReportController extends Controller
     {
         $this->authorize('update', $report);
         $districts = \App\Models\District::orderBy('name')->get();
+        $report->load('revisionItems.documentType');
+        $revisionItems = $report->revisionItems->where('is_resolved', false);
+        $revisionFields = $revisionItems->where('revision_type', 'data')->pluck('field_name')->toArray();
+        $revisionDocuments = $revisionItems->where('revision_type', 'document');
 
-        return view('pelapor.laporan.edit', compact('report', 'districts'));
+        return view('pelapor.laporan.edit', compact('report', 'districts', 'revisionItems', 'revisionFields', 'revisionDocuments'));
     }
 
-    public function update(UpdateReportRequest $request, Report $report)
+    public function update(UpdateReportRequest $request, Report $report, \App\Services\DocumentService $documentService)
     {
         $this->authorize('update', $report);
-        $updatedReport = $this->reportService->updateReport($request->user(), $report, $request->validated());
+        
+        $validated = $request->validated();
+        
+        // Handle document replacements
+        if ($request->hasFile('documents')) {
+            $revisionDocuments = $report->revisionItems()->where('is_resolved', false)->where('revision_type', 'document')->get()->keyBy('document_type_id');
+            foreach ($request->file('documents') as $docTypeId => $file) {
+                if (isset($revisionDocuments[$docTypeId])) {
+                    // Find the existing document
+                    $existingDoc = $report->documents()->where('document_type_id', $docTypeId)->first();
+                    if ($existingDoc) {
+                        $documentService->replaceDocument($request->user(), $existingDoc, $file);
+                    } else {
+                        // If it doesn't exist for some reason, upload it as new
+                        $docType = \App\Models\DocumentType::find($docTypeId);
+                        if ($docType) {
+                            $documentService->uploadDocument($request->user(), $report, $docType, $file);
+                        }
+                    }
+                }
+            }
+        }
+        
+        $updatedReport = $this->reportService->updateReport($request->user(), $report, $validated);
+
+        // Resolve all revision items since pelapor has submitted the update
+        $report->revisionItems()->update(['is_resolved' => true]);
 
         if ($request->wantsJson()) {
             return response()->json($updatedReport);

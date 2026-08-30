@@ -196,7 +196,64 @@
                         <textarea name="notes" rows="3" class="w-full rounded-xl border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm p-3" placeholder="Tuliskan alasan penolakan, detail perbaikan, atau catatan persetujuan..."></textarea>
                     </div>
                     
-                    <div class="pt-4 border-t border-gray-100">
+                    <!-- SECTION REVISI (Hidden by default) -->
+                    <div id="revision-panel" class="hidden pt-4 border-t border-gray-100">
+                        <div class="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-4">
+                            <h3 class="text-base font-bold text-orange-800 mb-3">BAGIAN YANG PERLU DIPERBAIKI</h3>
+                            <p class="text-sm text-orange-700 mb-4">Pilih data atau dokumen yang harus diperbaiki oleh Pelapor. Minimal pilih satu.</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Data Laporan -->
+                                <div>
+                                    <h4 class="font-bold text-gray-900 text-sm mb-3">A. Data Laporan</h4>
+                                    <div class="space-y-2">
+                                        @foreach([
+                                            'nik' => 'NIK Pemilih',
+                                            'family_card_number' => 'Nomor KK',
+                                            'name' => 'Nama Pemilih',
+                                            'gender' => 'Jenis Kelamin',
+                                            'district_id' => 'Kabupaten/Kota',
+                                            'birth_place' => 'Tempat Lahir',
+                                            'birth_date' => 'Tanggal Lahir',
+                                            'death_place' => 'Tempat Meninggal',
+                                            'death_date' => 'Tanggal Meninggal',
+                                            'address' => 'Alamat'
+                                        ] as $field => $label)
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" name="revision_fields[]" value="{{ $field }}" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                                            <span class="text-sm text-gray-700">{{ $label }}</span>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Dokumen / Lampiran -->
+                                <div>
+                                    <h4 class="font-bold text-gray-900 text-sm mb-3">B. Dokumen / Lampiran</h4>
+                                    <div class="space-y-2">
+                                        @foreach($report->documents as $doc)
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" name="revision_documents[]" value="{{ $doc->document_type_id }}" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                                            <span class="text-sm text-gray-700">{{ $doc->documentType->name }}</span>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button type="button" id="btn-cancel-revision" class="flex-1 inline-flex justify-center items-center px-4 py-3 bg-gray-200 text-gray-800 font-bold rounded-xl hover:bg-gray-300 transition-colors">
+                                Batal
+                            </button>
+                            <button type="submit" name="decision" value="perlu_perbaikan" class="flex-1 inline-flex justify-center items-center px-4 py-3 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors shadow-sm" onclick="return confirm('Apakah Anda yakin mengirim permintaan perbaikan ini ke Pelapor?');">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                Kirim Permintaan Perbaikan
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-100" id="main-action-buttons">
                         <label class="block text-sm font-bold text-gray-900 mb-4">Tentukan Tindakan</label>
                         
                         <div class="flex flex-col sm:flex-row gap-3">
@@ -206,8 +263,8 @@
                                 Setujui Laporan
                             </button>
 
-                            <!-- Button Perbaikan (Orange) -->
-                            <button type="submit" name="decision" value="perlu_perbaikan" class="flex-1 inline-flex justify-center items-center px-4 py-3 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors shadow-sm" onclick="return confirm('Apakah Anda yakin meminta perbaikan? Laporan akan dikembalikan ke Pelapor.');">
+                            <!-- Button Perbaikan (Orange) - toggles panel -->
+                            <button type="button" id="btn-show-revision" class="flex-1 inline-flex justify-center items-center px-4 py-3 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors shadow-sm">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 Minta Perbaikan
                             </button>
@@ -221,6 +278,27 @@
                     </div>
                 </div>
             </form>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const btnShowRevision = document.getElementById('btn-show-revision');
+                    const btnCancelRevision = document.getElementById('btn-cancel-revision');
+                    const revisionPanel = document.getElementById('revision-panel');
+                    const mainActionButtons = document.getElementById('main-action-buttons');
+                    
+                    if(btnShowRevision && revisionPanel) {
+                        btnShowRevision.addEventListener('click', function() {
+                            revisionPanel.classList.remove('hidden');
+                            mainActionButtons.classList.add('hidden');
+                        });
+                        
+                        btnCancelRevision.addEventListener('click', function() {
+                            revisionPanel.classList.add('hidden');
+                            mainActionButtons.classList.remove('hidden');
+                        });
+                    }
+                });
+            </script>
         </div>
     </x-ui.card>
     @endif

@@ -33,6 +33,25 @@ class UpdateReportRequest extends FormRequest
             'address' => 'sometimes|required|string',
             'death_place' => 'nullable|string|max:255',
             'death_date' => 'sometimes|required|date',
+            'documents' => 'nullable|array',
+            'documents.*' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $report = $this->route('report');
+            if ($report) {
+                $requiredDocs = $report->revisionItems()->where('is_resolved', false)->where('revision_type', 'document')->get();
+                $uploadedDocs = $this->file('documents', []);
+                
+                foreach ($requiredDocs as $doc) {
+                    if (!isset($uploadedDocs[$doc->document_type_id])) {
+                        $validator->errors()->add('documents.'.$doc->document_type_id, 'Dokumen '.$doc->label.' wajib diunggah ulang.');
+                    }
+                }
+            }
+        });
     }
 }

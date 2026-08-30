@@ -254,6 +254,7 @@ class VerificationServiceTest extends TestCase
 
         $response1 = $this->postJson("/sub-operator/laporan/{$reportDitolak->id}/verifikasi", [
             'decision' => 'perlu_perbaikan',
+            'revision_fields' => ['name'],
         ]);
 
         $response1->assertStatus(422); // Handled by catch block in controller
