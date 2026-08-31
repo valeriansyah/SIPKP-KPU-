@@ -140,34 +140,38 @@
                 <div class="flex flex-col gap-4">
                     <h2 class="text-lg font-semibold text-text">Monitoring Laporan Terkini</h2>
                     
-                    <!-- Filter UI Mock -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50/50 p-3 rounded-lg border border-gray-100">
-                        <div class="relative">
-                            <input type="text" placeholder="Cari nomor/nama..." class="w-full text-sm px-3 py-2 pl-9 border border-gray-300 rounded-md focus:ring-primary focus:border-primary">
-                            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <!-- Filter UI (Redirects to Monitoring) -->
+                    <form action="{{ route('operator.monitoring') }}" method="GET">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50/50 p-3 rounded-lg border border-gray-100">
+                            <div class="relative">
+                                <input type="text" name="search" placeholder="Cari nomor/nama/NIK..." class="w-full text-sm px-3 py-2 pl-9 border border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+                                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <div>
+                                <select name="district_id" class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary bg-white">
+                                    <option value="">Semua Wilayah</option>
+                                    @foreach($districts as $district)
+                                        <option value="{{ $district->id }}">
+                                            {{ $district->name }} ({{ $district->reports_count }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <select name="status" class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary bg-white">
+                                    <option value="">Semua Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Diproses">Diproses</option>
+                                    <option value="Disetujui">Disetujui</option>
+                                    <option value="Ditolak">Ditolak</option>
+                                    <option value="Perlu Perbaikan">Perlu Perbaikan</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button type="submit" class="w-full px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary-dark transition-colors">Lihat Laporan</button>
+                            </div>
                         </div>
-                        <div>
-                            <select class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary bg-white">
-                                <option value="">Semua Wilayah</option>
-                                @foreach($districts as $district)
-                                    <option value="{{ $district->id }}">
-                                        {{ $district->name }} ({{ $district->reports_count }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <select class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary bg-white">
-                                <option value="">Semua Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="diproses">Diproses</option>
-                                <option value="disetujui">Disetujui</option>
-                            </select>
-                        </div>
-                        <div>
-                            <input type="date" class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary text-gray-600">
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </x-slot>
             

@@ -53,8 +53,42 @@
 
         <!-- Latest Reports Table -->
         <div class="bg-surface rounded-lg border border-gray-200 shadow-sm col-span-1 lg:col-span-2">
-            <div class="p-5 border-b border-gray-100 flex justify-between items-center">
-                <h2 class="text-base font-semibold text-text">Laporan Terbaru Masuk</h2>
+            <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 class="text-base font-semibold text-text">Daftar Laporan Kematian</h2>
+                
+                <!-- Filter Form -->
+                <form action="{{ route('operator.monitoring') }}" method="GET" class="w-full sm:w-auto">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative">
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nomor/nama/NIK..." class="w-full text-sm px-3 py-2 pl-9 border border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+                            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <div>
+                            <select name="district_id" class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary bg-white">
+                                <option value="">Semua Wilayah</option>
+                                @foreach($districts as $district)
+                                    <option value="{{ $district->id }}" {{ request('district_id') == $district->id ? 'selected' : '' }}>
+                                        {{ $district->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <select name="status" class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary bg-white">
+                                <option value="">Semua Status</option>
+                                <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="Diproses" {{ request('status') == 'Diproses' ? 'selected' : '' }}>Diproses</option>
+                                <option value="Disetujui" {{ request('status') == 'Disetujui' ? 'selected' : '' }}>Disetujui</option>
+                                <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
+                                <option value="Perlu Perbaikan" {{ request('status') == 'Perlu Perbaikan' ? 'selected' : '' }}>Perlu Perbaikan</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary-dark transition-colors">Filter</button>
+                        @if(request()->anyFilled(['search', 'district_id', 'status']))
+                            <a href="{{ route('operator.monitoring') }}" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 transition-colors text-center">Reset</a>
+                        @endif
+                    </div>
+                </form>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -67,7 +101,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($reports->sortByDesc('created_at')->take(5) as $report)
+                        @foreach($reports as $report)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {{ $report->report_number }}
@@ -98,13 +132,18 @@
                         @if($reports->isEmpty())
                             <tr>
                                 <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500">
-                                    Belum ada laporan di seluruh wilayah.
+                                    Tidak ada laporan ditemukan.
                                 </td>
                             </tr>
                         @endif
                     </tbody>
                 </table>
             </div>
+            @if($reports->hasPages())
+            <div class="px-6 py-4 border-t border-gray-100">
+                {{ $reports->links() }}
+            </div>
+            @endif
         </div>
     </div>
 </div>

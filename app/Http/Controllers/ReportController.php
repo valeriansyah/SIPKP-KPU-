@@ -26,29 +26,71 @@ class ReportController extends Controller
 
     public function index(Request $request)
     {
+        $roleName = Str::slug($request->user()->role->role_name, '_');
+
+        if ($roleName === 'operator_provinsi') {
+            $query = $this->reportService->getReportsQueryForUser($request->user());
+
+            // 1. Validasi district_id (if present)
+            if ($request->filled('district_id')) {
+                $request->validate([
+                    'district_id' => 'integer|exists:districts,id',
+                ]);
+                $query->whereHas('deceased', function ($q) use ($request) {
+                    $q->where('district_id', $request->district_id);
+                });
+            }
+
+            // 2. Search
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('report_number', 'like', "%{$search}%")
+                      ->orWhereHas('deceased', function ($dq) use ($search) {
+                          $dq->where('name', 'like', "%{$search}%")
+                             ->orWhere('nik', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            // 3. Status
+            if ($request->filled('status')) {
+                $statusName = $request->status;
+                $query->whereHas('reportStatus', function ($q) use ($statusName) {
+                    // Match the actual status_name (case insensitive in DB usually, but let's be safe)
+                    $q->where('status_name', 'like', "%{$statusName}%");
+                });
+            }
+
+            // Calculate global stats using DashboardService so it's not affected by filters
+            $dashboardService = app(\App\Services\DashboardService::class);
+            $metrics = $dashboardService->getOperatorMetrics();
+            $stats = [
+                'total' => $metrics['total'],
+                'pending' => $metrics['pending'],
+                'diproses' => $metrics['diproses'],
+                'disetujui' => $metrics['disetujui'],
+                'ditolak' => $metrics['ditolak'],
+                'perbaikan' => $metrics['perlu_perbaikan'],
+            ];
+
+            $districts = District::orderBy('name')->withCount('reports')->get();
+            $reports = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
+
+            return view('operator.monitoring', compact('reports', 'stats', 'districts'));
+        }
+
+        // Existing logic for other roles
         $reports = $this->reportService->getReportsForUser($request->user());
 
         if ($request->wantsJson()) {
             return response()->json($reports);
         }
 
-        $roleName = Str::slug($request->user()->role->role_name, '_');
         if ($roleName === 'pelapor') {
             return view('pelapor.laporan.index', compact('reports'));
         } elseif ($roleName === 'sub_operator') {
             return view('sub-operator.antrean', compact('reports'));
-        } elseif ($roleName === 'operator_provinsi') {
-            $stats = [
-                'total' => $reports->count(),
-                'pending' => $reports->where('reportStatus.status_name', 'Pending')->count(),
-                'diproses' => $reports->where('reportStatus.status_name', 'Diproses')->count(),
-                'disetujui' => $reports->where('reportStatus.status_name', 'Disetujui')->count(),
-                'ditolak' => $reports->where('reportStatus.status_name', 'Ditolak')->count(),
-                'perbaikan' => $reports->where('reportStatus.status_name', 'Perlu Perbaikan')->count(),
-            ];
-            $districts = District::orderBy('name')->withCount('reports')->get();
-
-            return view('operator.monitoring', compact('reports', 'stats', 'districts'));
         }
 
         abort(403);

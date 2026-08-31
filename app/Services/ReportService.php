@@ -94,28 +94,35 @@ class ReportService
         return $report->load('deceased', 'reportStatus', 'documents.documentType', 'reportVerifications.user');
     }
 
-    public function getReportsForUser(User $user)
+    /**
+     * Get query builder for reports based on user role.
+     */
+    public function getReportsQueryForUser(User $user)
     {
         $roleName = Str::slug($user->role->role_name, '_');
 
         if ($roleName === 'pelapor') {
             return Report::with(['deceased', 'reportStatus'])
-                ->where('user_id', $user->id)
-                ->get();
+                ->where('user_id', $user->id);
         }
 
         if ($roleName === 'sub_operator') {
             return Report::with(['deceased', 'reportStatus'])
                 ->whereHas('deceased', function ($query) use ($user) {
                     $query->where('district_id', $user->district_id);
-                })->get();
+                });
         }
 
         if ($roleName === 'operator_provinsi') {
-            return Report::with(['deceased', 'reportStatus'])->get();
+            return Report::with(['deceased', 'deceased.district', 'reportStatus']);
         }
 
-        return collect([]);
+        return Report::query()->whereRaw('1 = 0');
+    }
+
+    public function getReportsForUser(User $user)
+    {
+        return $this->getReportsQueryForUser($user)->get();
     }
 
     public function updateReport(User $user, Report $report, array $data): Report
