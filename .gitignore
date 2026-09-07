@@ -31,4 +31,5 @@ backup/
 /scratch/
 /.gemini/
 /test laporan/
-*.tmp*.sqlite3
+*.tmp
+*.sqlite3

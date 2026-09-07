@@ -34,7 +34,7 @@ class UpdateReportRequest extends FormRequest
             'death_place' => 'nullable|string|max:255',
             'death_date' => 'sometimes|required|date',
             'documents' => 'nullable|array',
-            'documents.*' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'documents.*' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ];
     }
 

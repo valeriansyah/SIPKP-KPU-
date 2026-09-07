@@ -79,8 +79,8 @@ class ReportService
         } catch (\Exception $e) {
             // Cleanup uploaded files if the transaction fails
             foreach ($uploadedPaths as $path) {
-                if (Storage::disk('public')->exists($path)) {
-                    Storage::disk('public')->delete($path);
+                if (Storage::disk('local')->exists($path)) {
+                    Storage::disk('local')->delete($path);
                 }
             }
             throw $e;

@@ -69,7 +69,8 @@ class DocumentService
                 throw new Exception('Laporan dengan status ini tidak dapat mengganti dokumen.');
             }
 
-            // Soft delete the old document
+            // Soft delete the old document record.
+            // Note: The physical file is intentionally kept on disk for historical audit/retention.
             $document->delete();
 
             // Store new physical file
