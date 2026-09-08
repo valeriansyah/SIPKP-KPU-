@@ -33,3 +33,5 @@ backup/
 /test laporan/
 *.tmp
 *.sqlite3
+/sub_operator_credentials.txt  
+ 
